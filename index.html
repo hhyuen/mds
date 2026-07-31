@@ -447,16 +447,22 @@
 	const hero = document.getElementById('hero');
     const topTrigger = document.getElementById('topTrigger');
 
-    const HERO_COLLAPSE_Y = 140;
-    let heroPinnedOpen = false;
+	const HERO_COLLAPSE_Y = 170;
+	const HERO_EXPAND_Y = 110;
+	let heroPinnedOpen = false;
+	let heroCollapsed = false;
 
-    function updateHeroState() {
-      if (window.scrollY < HERO_COLLAPSE_Y || heroPinnedOpen) {
-        hero.classList.remove('is-collapsed');
-      } else {
-        hero.classList.add('is-collapsed');
-      }
-    }
+	function updateHeroState() {
+	  if (heroPinnedOpen) {
+		heroCollapsed = false;
+	  } else if (!heroCollapsed && window.scrollY >= HERO_COLLAPSE_Y) {
+		heroCollapsed = true;
+	  } else if (heroCollapsed && window.scrollY <= HERO_EXPAND_Y) {
+		heroCollapsed = false;
+	  }
+
+	  hero.classList.toggle('is-collapsed', heroCollapsed);
+	}
 
     window.addEventListener('scroll', updateHeroState, { passive: true });
 
