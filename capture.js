@@ -101,7 +101,21 @@ async function handleFearGreed(page, site, targetFile) {
   await sleep(2000);
   await dismissCommonPopups(page);
   await sleep(2000);
-  
+
+  const agreeBtn = page.locator('button:has-text("Agree")').first();
+  try {
+    if (await agreeBtn.isVisible({ timeout: 2000 })) {
+      await agreeBtn.click({ timeout: 2000 });
+      await sleep(2000);
+    }
+  } catch (_) {}
+
+  const element = page.locator('div.market-tabbed-container').first();
+  await element.waitFor({ state: 'visible', timeout: 15000 });
+  await element.screenshot({ path: targetFile });
+  console.log(`Saved: ${targetFile}`);
+}
+
 async function handleDefault(page, site, targetFile) {
   if (site.scrollY) {
     await page.mouse.wheel(0, site.scrollY);
