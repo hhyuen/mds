@@ -24,10 +24,3 @@ jobs:
 
       - name: Run capture script
         run: cargo run --release --bin capture
-
-      - name: Upload screenshots artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: screenshots
-          path: screenshots/
-          if-no-files-found: warn
