@@ -1,0 +1,11 @@
+[
+
+  {
+    "name": "Heat Map - Daily",
+    "url": "https://finviz.com/map?t=sec&st=d1",
+    "file": "heatmap_d.png",
+    "waitAfterLoadMs": 5000,
+	"selector": "canvas"
+  }
+
+]

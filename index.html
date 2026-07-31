@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Market Dashboard</title>
+  <style>
+    :root {
+      --bg: #0b1220;
+      --panel: #121a2b;
+      --panel-2: #182235;
+      --border: rgba(255,255,255,.09);
+      --text: #e8eefc;
+      --muted: #9cafc9;
+      --accent: #7dd3fc;
+      --shadow: 0 18px 40px rgba(0,0,0,.28);
+      --radius: 18px;
+      --gap: 18px;
+      --max: 1480px;
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at top right, rgba(34,211,238,.12), transparent 28%),
+        radial-gradient(circle at top left, rgba(59,130,246,.12), transparent 22%),
+        linear-gradient(180deg, #0a1120 0%, #0b1220 100%);
+    }
+    button, a { color: inherit; font: inherit; }
+    .wrap {
+      width: min(calc(100% - 28px), var(--max));
+      margin: 0 auto;
+      padding: 28px 0 56px;
+    }
+    .hero {
+      position: sticky;
+      top: 0;
+      z-index: 30;
+      backdrop-filter: blur(14px);
+      background: linear-gradient(180deg, rgba(10,17,32,.92), rgba(10,17,32,.72));
+      border-bottom: 1px solid rgba(255,255,255,.06);
+    }
+    .hero-inner {
+      width: min(calc(100% - 28px), var(--max));
+      margin: 0 auto;
+      padding: 18px 0 14px;
+    }
+    h1 {
+      margin: 0;
+      font-size: clamp(1.6rem, 1.15rem + 1.8vw, 2.6rem);
+      line-height: 1.05;
+      letter-spacing: -.03em;
+    }
+    .sub {
+      margin-top: 8px;
+      color: var(--muted);
+      font-size: .98rem;
+      max-width: 74ch;
+    }
+    .toc {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 14px;
+    }
+    .toc a {
+      padding: 8px 12px;
+      background: rgba(255,255,255,.05);
+      border: 1px solid rgba(255,255,255,.08);
+      border-radius: 999px;
+      font-size: .88rem;
+      color: #dce7fb;
+      text-decoration: none;
+    }
+    section {
+      margin-top: 28px;
+      padding: 20px;
+      background: linear-gradient(180deg, rgba(18,26,43,.92), rgba(18,26,43,.78));
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      box-shadow: var(--shadow);
+    }
+    .section-head {
+      display: flex;
+      align-items: end;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 16px;
+    }
+    .section-head h2 {
+      margin: 0;
+      font-size: clamp(1.05rem, .95rem + .8vw, 1.5rem);
+      letter-spacing: -.02em;
+    }
+    .section-head p {
+      margin: 6px 0 0;
+      color: var(--muted);
+      font-size: .94rem;
+    }
+    .grid {
+      display: grid;
+      gap: var(--gap);
+      grid-template-columns: repeat(12, minmax(0, 1fr));
+      align-items: start;
+    }
+    .card {
+      grid-column: span 12;
+      padding: 0;
+      text-align: left;
+      background: linear-gradient(180deg, rgba(24,34,53,.9), rgba(17,24,39,.94));
+      border: 1px solid rgba(255,255,255,.08);
+      border-radius: var(--radius);
+      overflow: hidden;
+      transition: transform .18s ease, border-color .18s ease, box-shadow .18s ease;
+      box-shadow: 0 8px 24px rgba(0,0,0,.18);
+      cursor: zoom-in;
+    }
+    .card:hover {
+      transform: translateY(-2px);
+      border-color: rgba(125,211,252,.32);
+      box-shadow: 0 16px 34px rgba(0,0,0,.26);
+    }
+    .thumb {
+      display: block;
+      width: 100%;
+      height: auto;
+      background: #0f172a;
+    }
+    .meta {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: start;
+      padding: 12px 14px 14px;
+    }
+    .title {
+      font-size: .96rem;
+      font-weight: 700;
+      line-height: 1.2;
+      letter-spacing: -.01em;
+    }
+    .caption {
+      margin-top: 4px;
+      color: var(--muted);
+      font-size: .78rem;
+    }
+    .dim {
+      color: var(--muted);
+      font-size: .78rem;
+      white-space: nowrap;
+      padding-top: 2px;
+    }
+    .w-12 { grid-column: span 12; }
+    .w-8 { grid-column: span 12; }
+    .w-6 { grid-column: span 12; }
+    .w-4 { grid-column: span 12; }
+    .w-3 { grid-column: span 12; }
+    @media (min-width: 700px) {
+      .w-8 { grid-column: span 8; }
+      .w-6 { grid-column: span 6; }
+      .w-4 { grid-column: span 6; }
+      .w-3 { grid-column: span 4; }
+    }
+    @media (min-width: 1100px) {
+      .w-4 { grid-column: span 4; }
+      .w-3 { grid-column: span 3; }
+    }
+
+    .lightbox {
+      position: fixed;
+      inset: 0;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 22px;
+      background: rgba(3, 7, 18, .82);
+      backdrop-filter: blur(8px);
+      z-index: 100;
+    }
+    .lightbox.open { display: flex; }
+    .lightbox-panel {
+      width: min(96vw, 1500px);
+      max-height: 92vh;
+      background: linear-gradient(180deg, rgba(16,23,36,.98), rgba(12,18,29,.98));
+      border: 1px solid rgba(255,255,255,.1);
+      border-radius: 22px;
+      overflow: hidden;
+      box-shadow: 0 24px 60px rgba(0,0,0,.45);
+    }
+    .lightbox-top {
+      display: flex;
+      justify-content: space-between;
+      gap: 14px;
+      align-items: center;
+      padding: 14px 16px;
+      border-bottom: 1px solid rgba(255,255,255,.08);
+    }
+    .lightbox-title {
+      font-weight: 700;
+      letter-spacing: -.01em;
+    }
+    .lightbox-sub {
+      color: var(--muted);
+      font-size: .84rem;
+      margin-top: 3px;
+    }
+    .lightbox-actions {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+    .lightbox-actions a,
+    .lightbox-actions button {
+      border: 1px solid rgba(255,255,255,.1);
+      background: rgba(255,255,255,.05);
+      color: var(--text);
+      border-radius: 999px;
+      padding: 9px 13px;
+      text-decoration: none;
+      cursor: pointer;
+    }
+    .lightbox-body {
+      padding: 12px;
+      overflow: auto;
+      max-height: calc(92vh - 78px);
+      background: #0b1220;
+    }
+    .lightbox-body img {
+      display: block;
+      width: 100%;
+      height: auto;
+      background: #0f172a;
+      border-radius: 12px;
+    }
+  </style>
+</head>
+<body>
+  <header class="hero">
+    <div class="hero-inner">
+      <h1>Market Dashboard</h1>
+      <div class="sub">A single-page visual briefing arranged from price action to sentiment, breadth, exits, macro structure, and upcoming events. First click enlarges a chart, then use the source button in the viewer to open its landing page.</div>
+      <nav class="toc">
+        <a href="#performance">Market Performance</a>
+        <a href="#sentiment">Market Sentiment</a>
+        <a href="#breadth">Market Breadth</a>
+        <a href="#exit">Exit Indicators</a>
+        <a href="#economic">Economic Indicators</a>
+        <a href="#events">Important Events</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <section id="performance">
+      <div class="section-head"><div><h2>Market Performance</h2><p>Start with the broad tape, then compare daily and weekly participation through the heat maps.</p></div></div>
+      <div class="grid">
+        <button class="card w-12 js-open" data-title="finviz" data-dim="1426 × 205" data-img="screenshots/finviz.png" data-link="https://finviz.com/">
+          <img class="thumb" src="screenshots/finviz.png" alt="Finviz market indexes" width="1426" height="205">
+          <div class="meta"><div><div class="title">finviz</div><div class="caption">Click to enlarge</div></div><div class="dim">1426 × 205</div></div>
+        </button>
+        <button class="card w-6 js-open" data-title="heatmap_d" data-dim="1552 × 862" data-img="screenshots/heatmap_d.png" data-link="https://finviz.com/map.ashx?t=sec_all&st=d">
+          <img class="thumb" src="screenshots/heatmap_d.png" alt="Finviz daily heat map" width="1552" height="862">
+          <div class="meta"><div><div class="title">heatmap_d</div><div class="caption">Click to enlarge</div></div><div class="dim">1552 × 862</div></div>
+        </button>
+        <button class="card w-6 js-open" data-title="heatmap_w" data-dim="1552 × 862" data-img="screenshots/heatmap_w.png" data-link="https://finviz.com/map.ashx?t=sec_all&st=w">
+          <img class="thumb" src="screenshots/heatmap_w.png" alt="Finviz weekly heat map" width="1552" height="862">
+          <div class="meta"><div><div class="title">heatmap_w</div><div class="caption">Click to enlarge</div></div><div class="dim">1552 × 862</div></div>
+        </button>
+      </div>
+    </section>
+
+    <section id="sentiment">
+      <div class="section-head"><div><h2>Market Sentiment</h2><p>Sentiment sits after price so the page reads as action first, psychology second.</p></div></div>
+      <div class="grid">
+        <button class="card w-8 js-open" data-title="fear-greed" data-dim="1026 × 427" data-img="screenshots/fear-greed.png" data-link="https://edition.cnn.com/markets/fear-and-greed">
+          <img class="thumb" src="screenshots/fear-greed.png" alt="Fear and Greed index" width="1026" height="427">
+          <div class="meta"><div><div class="title">fear-greed</div><div class="caption">Click to enlarge</div></div><div class="dim">1026 × 427</div></div>
+        </button>
+        <button class="card w-4 js-open" data-title="aaii" data-dim="1000 × 876" data-img="screenshots/aaii.png" data-link="https://www.a1trading.com/free-data-dashboards/aaii-sentiment-survey/">
+          <img class="thumb" src="screenshots/aaii.png" alt="AAII sentiment survey" width="1000" height="876">
+          <div class="meta"><div><div class="title">aaii</div><div class="caption">Click to enlarge</div></div><div class="dim">1000 × 876</div></div>
+        </button>
+        <button class="card w-12 js-open" data-title="naaim" data-dim="1380 × 1300" data-img="screenshots/naaim.png" data-link="https://naaim.org/programs/naaim-exposure-index/">
+          <img class="thumb" src="screenshots/naaim.png" alt="NAAIM exposure index" width="1380" height="1300">
+          <div class="meta"><div><div class="title">naaim</div><div class="caption">Click to enlarge</div></div><div class="dim">1380 × 1300</div></div>
+        </button>
+      </div>
+    </section>
+
+    <section id="breadth">
+      <div class="section-head"><div><h2>Market Breadth</h2><p>The breadth block starts with the headline participation chart, then compares index-level participation beneath it.</p></div></div>
+      <div class="grid">
+        <button class="card w-8 js-open" data-title="ushl" data-dim="900 × 811" data-img="screenshots/ushl.png" data-link="https://stockcharts.com/sc3/ui/?s=%24USHL&id=p77545961209" style="grid-column: 1 / span 8; grid-row: 1 / span 2;">
+          <img class="thumb" src="screenshots/ushl.png" alt="US high-low breadth chart" width="900" height="811">
+          <div class="meta"><div><div class="title">ushl</div><div class="caption">Primary breadth view</div></div><div class="dim">900 × 811</div></div>
+        </button>
+        <button class="card w-4 js-open" data-title="abv50200_SP500" data-dim="990 × 817" data-img="screenshots/abv50200_SP500.png" data-link="https://www.barchart.com/stocks/quotes/%24SPXA200R/interactive-chart" style="grid-column: 9 / span 4; grid-row: 1;">
+          <img class="thumb" src="screenshots/abv50200_SP500.png" alt="S&P 500 above 50 and 200 day average" width="990" height="817">
+          <div class="meta"><div><div class="title">abv50200_SP500</div><div class="caption">Top right</div></div><div class="dim">990 × 817</div></div>
+        </button>
+        <button class="card w-4 js-open" data-title="abv50200_COMPQ" data-dim="990 × 817" data-img="screenshots/abv50200_COMPQ.png" data-link="https://www.barchart.com/stocks/quotes/%24NAA200R/interactive-chart" style="grid-column: 9 / span 4; grid-row: 2;">
+          <img class="thumb" src="screenshots/abv50200_COMPQ.png" alt="NASDAQ above 50 and 200 day average" width="990" height="817">
+          <div class="meta"><div><div class="title">abv50200_COMPQ</div><div class="caption">Middle right</div></div><div class="dim">990 × 817</div></div>
+        </button>
+        <button class="card w-4 js-open" data-title="abv50200_NYA" data-dim="990 × 817" data-img="screenshots/abv50200_NYA.png" data-link="https://www.barchart.com/stocks/quotes/%24NYA200R/interactive-chart" style="grid-column: 1 / span 4; grid-row: 3;">
+          <img class="thumb" src="screenshots/abv50200_NYA.png" alt="NYSE above 50 and 200 day average" width="990" height="817">
+          <div class="meta"><div><div class="title">abv50200_NYA</div><div class="caption">Bottom left</div></div><div class="dim">990 × 817</div></div>
+        </button>
+        <button class="card w-4 js-open" data-title="abv50200_INDU" data-dim="990 × 817" data-img="screenshots/abv50200_INDU.png" data-link="https://www.barchart.com/stocks/quotes/%24DJA200R/interactive-chart" style="grid-column: 5 / span 4; grid-row: 3;">
+          <img class="thumb" src="screenshots/abv50200_INDU.png" alt="Dow above 50 and 200 day average" width="990" height="817">
+          <div class="meta"><div><div class="title">abv50200_INDU</div><div class="caption">Bottom middle</div></div><div class="dim">990 × 817</div></div>
+        </button>
+      </div>
+    </section>
+
+    <section id="exit">
+      <div class="section-head"><div><h2>Exit Indicator</h2><p>These are paired as risk-off checks: implied volatility and credit stress.</p></div></div>
+      <div class="grid">
+        <button class="card w-6 js-open" data-title="vix" data-dim="900 × 534" data-img="screenshots/vix.png" data-link="https://www.tradingview.com/symbols/CBOE-VIX/">
+          <img class="thumb" src="screenshots/vix.png" alt="VIX chart" width="900" height="534">
+          <div class="meta"><div><div class="title">vix</div><div class="caption">Click to enlarge</div></div><div class="dim">900 × 534</div></div>
+        </button>
+        <button class="card w-6 js-open" data-title="hyioas" data-dim="990 × 970" data-img="screenshots/hyioas.png" data-link="https://fred.stlouisfed.org/series/BAMLH0A0HYM2">
+          <img class="thumb" src="screenshots/hyioas.png" alt="High yield option-adjusted spread" width="990" height="970">
+          <div class="meta"><div><div class="title">hyioas</div><div class="caption">Click to enlarge</div></div><div class="dim">990 × 970</div></div>
+        </button>
+      </div>
+    </section>
+
+    <section id="economic">
+      <div class="section-head"><div><h2>Economic Indicator</h2><p>Macro structure follows risk checks, moving from rate expectations to curve shape and term-spread recession signal.</p></div></div>
+      <div class="grid">
+        <button class="card w-4 js-open" data-title="cme" data-dim="440 × 314" data-img="screenshots/cme.png" data-link="https://www.cmegroup.com/markets/interest-rates/cme-fedwatch-tool.html">
+          <img class="thumb" src="screenshots/cme.png" alt="CME FedWatch" width="440" height="314">
+          <div class="meta"><div><div class="title">cme</div><div class="caption">Click to enlarge</div></div><div class="dim">440 × 314</div></div>
+        </button>
+        <button class="card w-4 js-open" data-title="t10y3m" data-dim="1320 × 466" data-img="screenshots/t10y3m.png" data-link="https://fred.stlouisfed.org/series/T10Y3M">
+          <img class="thumb" src="screenshots/t10y3m.png" alt="10 year minus 3 month spread" width="1320" height="466">
+          <div class="meta"><div><div class="title">t10y3m</div><div class="caption">Click to enlarge</div></div><div class="dim">1320 × 466</div></div>
+        </button>
+        <button class="card w-4 js-open" data-title="yieldcurve" data-dim="800 × 451" data-img="screenshots/yieldcurve.png" data-link="https://www.gurufocus.com/yield_curve.php">
+          <img class="thumb" src="screenshots/yieldcurve.png" alt="Yield curve chart" width="800" height="451">
+          <div class="meta"><div><div class="title">yieldcurve</div><div class="caption">Click to enlarge</div></div><div class="dim">800 × 451</div></div>
+        </button>
+      </div>
+    </section>
+
+    <section id="events">
+      <div class="section-head"><div><h2>Important Events</h2><p>The page ends with the practical calendar layer: earnings first, then the longer economic slate.</p></div></div>
+      <div class="grid">
+        <button class="card w-6 js-open" data-title="earnings-calendar" data-dim="1006 × 940" data-img="screenshots/earnings-calendar.png" data-link="https://finviz.com/calendar.ashx?t=earnings">
+          <img class="thumb" src="screenshots/earnings-calendar.png" alt="Earnings calendar" width="1006" height="940">
+          <div class="meta"><div><div class="title">earnings-calendar</div><div class="caption">Click to enlarge</div></div><div class="dim">1006 × 940</div></div>
+        </button>
+        <button class="card w-6 js-open" data-title="economic-calendar" data-dim="595 × 1805" data-img="screenshots/economic-calendar.png" data-link="https://finviz.com/calendar.ashx?t=economic">
+          <img class="thumb" src="screenshots/economic-calendar.png" alt="Economic calendar" width="595" height="1805">
+          <div class="meta"><div><div class="title">economic-calendar</div><div class="caption">Click to enlarge</div></div><div class="dim">595 × 1805</div></div>
+        </button>
+      </div>
+    </section>
+  </main>
+
+  <div class="lightbox" id="lightbox" aria-hidden="true">
+    <div class="lightbox-panel">
+      <div class="lightbox-top">
+        <div>
+          <div class="lightbox-title" id="lightboxTitle">Image</div>
+          <div class="lightbox-sub" id="lightboxSub">Dimensions</div>
+        </div>
+        <div class="lightbox-actions">
+          <a id="lightboxLink" href="#" target="_blank" rel="noopener noreferrer">Open source site</a>
+          <button type="button" id="lightboxClose">Close</button>
+        </div>
+      </div>
+      <div class="lightbox-body">
+        <img id="lightboxImg" src="" alt="Expanded dashboard image">
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const lightbox = document.getElementById('lightbox');
+    const lightboxImg = document.getElementById('lightboxImg');
+    const lightboxTitle = document.getElementById('lightboxTitle');
+    const lightboxSub = document.getElementById('lightboxSub');
+    const lightboxLink = document.getElementById('lightboxLink');
+    const lightboxClose = document.getElementById('lightboxClose');
+
+    document.querySelectorAll('.js-open').forEach(card => {
+      card.addEventListener('click', () => {
+        lightboxImg.src = card.dataset.img;
+        lightboxTitle.textContent = card.dataset.title;
+        lightboxSub.textContent = card.dataset.dim;
+        lightboxLink.href = card.dataset.link;
+        lightbox.classList.add('open');
+        lightbox.setAttribute('aria-hidden', 'false');
+      });
+    });
+
+    function closeLightbox() {
+      lightbox.classList.remove('open');
+      lightbox.setAttribute('aria-hidden', 'true');
+    }
+
+    lightboxClose.addEventListener('click', closeLightbox);
+    lightbox.addEventListener('click', (e) => {
+      if (e.target === lightbox) closeLightbox();
+    });
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && lightbox.classList.contains('open')) closeLightbox();
+    });
+  </script>
+</body>
+</html>
