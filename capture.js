@@ -269,6 +269,7 @@ async function captureSite(browser, site) {
 (async () => {
   const browser = await chromium.launch({
     headless: true,
+    channel: 'chrome',
     args: ['--disable-http2']
   });
 
