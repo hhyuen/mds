@@ -97,6 +97,11 @@ async function handleYahooEarnings(page, site, targetFile) {
   console.log(`Saved Yahoo earnings section screenshot: ${site.file}`);
 }
 
+async function handleFearGreed(page, site, targetFile) {
+  await sleep(2000);
+  await dismissCommonPopups(page);
+  await sleep(2000);
+  
 async function handleDefault(page, site, targetFile) {
   if (site.scrollY) {
     await page.mouse.wheel(0, site.scrollY);
@@ -146,7 +151,9 @@ async function runCapture(page, site, targetFile) {
     await handleCME(page, site, targetFile);
   } else if (site.name === 'Yahoo Earnings Calendar') {
     await handleYahooEarnings(page, site, targetFile);
-  } else {
+  } else if (site.name === 'CNN Fear and Greed') {
+    await handleFearGreed(page, site, targetFile);
+  } else {  
     await handleDefault(page, site, targetFile);
   }
 }
@@ -182,7 +189,6 @@ async function captureSite(browser, site) {
 (async () => {
   const browser = await chromium.launch({
     headless: true,
-    channel: 'chrome',
     args: ['--disable-http2']
   });
 
