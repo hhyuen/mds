@@ -35,6 +35,15 @@
       margin: 0 auto;
       padding: 28px 0 56px;
     }
+	.top-trigger {
+	  position: fixed;
+	  top: 0;
+	  left: 0;
+	  right: 0;
+	  height: 48px;
+	  z-index: 40;
+	  background: transparent;
+	}
     .hero {
       position: sticky;
       top: 0;
@@ -48,6 +57,24 @@
       margin: 0 auto;
       padding: 18px 0 14px;
     }
+	.hero-top {
+	  overflow: hidden;
+	  max-height: 220px;
+	  opacity: 1;
+	  transform: translateY(0);
+	  transition: max-height .24s ease, opacity .18s ease, transform .24s ease, margin .24s ease;
+	}
+
+	.hero.is-collapsed .hero-top {
+	  max-height: 0;
+	  opacity: 0;
+	  transform: translateY(-10px);
+	  margin: 0;
+	}
+
+	.hero {
+	  transition: background .2s ease, box-shadow .2s ease;
+	}
     h1 {
       margin: 0;
       font-size: clamp(1.6rem, 1.15rem + 1.8vw, 2.6rem);
@@ -239,20 +266,23 @@
   </style>
 </head>
 <body>
-  <header class="hero">
-    <div class="hero-inner">
-      <h1>Market Dashboard</h1>
-      <div class="sub">A single-page visual briefing arranged from price action to sentiment, breadth, exits, macro structure, and upcoming events. First click enlarges a chart, then use the source button in the viewer to open its landing page.</div>
-      <nav class="toc">
-        <a href="#performance">Market Performance</a>
-        <a href="#sentiment">Market Sentiment</a>
-        <a href="#breadth">Market Breadth</a>
-        <a href="#exit">Exit Indicators</a>
-        <a href="#economic">Economic Indicators</a>
-        <a href="#events">Important Events</a>
-      </nav>
-    </div>
-  </header>
+	<div class="top-trigger" id="topTrigger" aria-hidden="true"></div>
+	<header class="hero" id="hero">
+	  <div class="hero-inner">
+		<div class="hero-top" id="heroTop">
+		  <h1>Market Dashboard</h1>
+		  <div class="sub">A single-page visual briefing arranged from price action to sentiment, breadth, exits, macro structure, and upcoming events. First click enlarges a chart, then use the source button in the viewer to open its landing page.</div>
+		</div>
+		<nav class="toc">
+		  <a href="#performance">Market Performance</a>
+		  <a href="#sentiment">Market Sentiment</a>
+		  <a href="#breadth">Market Breadth</a>
+		  <a href="#exit">Exit Indicators</a>
+		  <a href="#economic">Economic Indicators</a>
+		  <a href="#events">Important Events</a>
+		</nav>
+	  </div>
+	</header>
 
   <main class="wrap">
     <section id="performance">
@@ -413,6 +443,45 @@
     document.addEventListener('keydown', (e) => {
       if (e.key === 'Escape' && lightbox.classList.contains('open')) closeLightbox();
     });
+	
+	const hero = document.getElementById('hero');
+    const topTrigger = document.getElementById('topTrigger');
+
+    const HERO_COLLAPSE_Y = 140;
+    let heroPinnedOpen = false;
+
+    function updateHeroState() {
+      if (window.scrollY < HERO_COLLAPSE_Y || heroPinnedOpen) {
+        hero.classList.remove('is-collapsed');
+      } else {
+        hero.classList.add('is-collapsed');
+      }
+    }
+
+    window.addEventListener('scroll', updateHeroState, { passive: true });
+
+    topTrigger.addEventListener('mouseenter', () => {
+      if (window.scrollY >= HERO_COLLAPSE_Y) {
+        heroPinnedOpen = true;
+        hero.classList.remove('is-collapsed');
+      }
+    });
+
+    hero.addEventListener('mouseenter', () => {
+      if (window.scrollY >= HERO_COLLAPSE_Y) {
+        heroPinnedOpen = true;
+        hero.classList.remove('is-collapsed');
+      }
+    });
+
+    hero.addEventListener('mouseleave', () => {
+      if (window.scrollY >= HERO_COLLAPSE_Y) {
+        heroPinnedOpen = false;
+        hero.classList.add('is-collapsed');
+      }
+    });
+
+    updateHeroState();
   </script>
 </body>
 </html>
