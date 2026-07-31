@@ -1,0 +1,33 @@
+name: Scheduled Capture
+
+on:
+  schedule:
+    - cron: '0 23 * * 1-5'
+  workflow_dispatch:
+
+jobs:
+  capture:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Cache Rust build files
+        uses: Swatinem/rust-cache@v2
+
+      - name: Build capture binary
+        run: cargo build --release
+
+      - name: Run capture script
+        run: cargo run --release --bin capture
+
+      - name: Upload screenshots artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: screenshots
+          path: screenshots/
+          if-no-files-found: warn
