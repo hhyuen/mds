@@ -1,10 +1,10 @@
 [
   {
-    "name": "UnusualWhales Economic Calendar",
-    "url": "https://unusualwhales.com/economic-calendar",
+    "name": "Finviz Economic Calendar",
+    "url": "https://finviz.com/calendar/economic?t=economic",
     "file": "economic-calendar.png",
     "waitAfterLoadMs": 7000,
-    "selector": "div[data-id=\"Economic Calendar\"] table"
+    "selector": "div.mt-6"
   },
   {
     "name": "Yahoo Earnings Calendar",
@@ -38,7 +38,7 @@
     "name": "AAII Sentiment Survey",
     "url": "https://www.a1trading.com/free-data-dashboards/aaii-sentiment-survey/",
     "file": "aaii.png",
-    "waitAfterLoadMs": 30000,
+    "waitAfterLoadMs": 25000,
 	"scrollY": 200,
 	"selector": "iframe.responsive-iframe"
   },
