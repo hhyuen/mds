@@ -8,6 +8,8 @@ on:
 jobs:
   capture:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
 
     steps:
       - name: Check out repository
@@ -22,14 +24,27 @@ jobs:
         run: npm ci
 
       - name: Install Playwright browsers
-        run: npx playwright install --with-deps
+        run: npx playwright install --with-deps chromium
 
       - name: Run capture script
         run: node capture.js
+
+      - name: List files after capture
+        run: |
+          ls -la screenshots
+          find screenshots -maxdepth 2 -type f | sort
+
+      - name: Commit updated screenshots
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add screenshots
+          git diff --cached --quiet || git commit -m "Update screenshots"
+          git push
 
       - name: Upload screenshots artifact
         uses: actions/upload-artifact@v4
         with:
           name: screenshots
           path: screenshots/
-          if-no-files-found: warn
+          if-no-files-found: error
