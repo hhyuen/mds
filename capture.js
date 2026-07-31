@@ -98,22 +98,86 @@ async function handleYahooEarnings(page, site, targetFile) {
 }
 
 async function handleFearGreed(page, site, targetFile) {
-  await sleep(2000);
-  await dismissCommonPopups(page);
-  await sleep(2000);
+  await sleep(2500);
 
-  const agreeBtn = page.locator('button:has-text("Agree")').first();
-  try {
-    if (await agreeBtn.isVisible({ timeout: 2000 })) {
-      await agreeBtn.click({ timeout: 2000 });
+  const agreeSelectors = [
+    'button:has-text("Agree")',
+    'text=Agree',
+    '[role="button"]:has-text("Agree")'
+  ];
+
+  let clicked = false;
+
+  for (const selector of agreeSelectors) {
+    try {
+      const btn = page.locator(selector).first();
+      if (await btn.isVisible({ timeout: 2500 })) {
+        await btn.click({ timeout: 2500 });
+        await sleep(2000);
+        clicked = true;
+        break;
+      }
+    } catch (_) {}
+  }
+
+  if (!clicked) {
+    try {
+      await page.evaluate(() => {
+        const candidates = Array.from(document.querySelectorAll('button, [role="button"], div'));
+        for (const el of candidates) {
+          const text = (el.textContent || '').trim();
+          if (text === 'Agree') {
+            el.click();
+            return;
+          }
+        }
+      });
       await sleep(2000);
-    }
+    } catch (_) {}
+  }
+
+  try {
+    await page.evaluate(() => {
+      const nodes = Array.from(document.querySelectorAll('body *'));
+      for (const el of nodes) {
+        const text = (el.textContent || '').toLowerCase();
+        const style = window.getComputedStyle(el);
+
+        const looksLikeConsent =
+          text.includes('legal terms and privacy') ||
+          text.includes('cookies') ||
+          text.includes('privacy policy') ||
+          text.includes('agree');
+
+        const isOverlay =
+          style.position === 'fixed' ||
+          style.position === 'sticky' ||
+          Number(style.zIndex || 0) > 999;
+
+        if (looksLikeConsent && isOverlay) {
+          el.remove();
+        }
+      }
+
+      document.querySelectorAll('[class*="overlay"], [class*="modal"], [class*="backdrop"]').forEach(el => {
+        const style = window.getComputedStyle(el);
+        if (style.position === 'fixed' || Number(style.zIndex || 0) > 999) {
+          el.remove();
+        }
+      });
+
+      document.body.style.overflow = 'auto';
+      document.documentElement.style.overflow = 'auto';
+    });
   } catch (_) {}
+
+  await sleep(1000);
 
   const element = page.locator('div.market-tabbed-container').first();
   await element.waitFor({ state: 'visible', timeout: 15000 });
   await element.screenshot({ path: targetFile });
-  console.log(`Saved: ${targetFile}`);
+
+  console.log(`Saved Fear and Greed screenshot: ${site.file}`);
 }
 
 async function handleDefault(page, site, targetFile) {
@@ -166,6 +230,8 @@ async function runCapture(page, site, targetFile) {
   } else if (site.name === 'Yahoo Earnings Calendar') {
     await handleYahooEarnings(page, site, targetFile);
   } else if (site.name === 'CNN Fear and Greed') {
+    await sleep(2000);
+    await dismissCommonPopups(page);
     await handleFearGreed(page, site, targetFile);
   } else {  
     await handleDefault(page, site, targetFile);
