@@ -36,7 +36,7 @@ jobs:
 
       # --- New Google Drive Upload Step ---
       - name: Upload screenshots to Google Drive
-        uses: adityassarkar/google-drive-upload-gitaction@v1
+        uses: adityak74/google-drive-upload-git-action@main
         with:
           credentials: ${{ secrets.GDRIVE_CREDENTIALS }}
           folderId: ${{ secrets.GDRIVE_FOLDER_ID }}
