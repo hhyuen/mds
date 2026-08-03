@@ -50,21 +50,21 @@ jobs:
           # 1. Create the rclone configuration folder directory
           mkdir -p ~/.config/rclone
 
-          # 2. Write the standard text configs using single quotes to protect formatting
+          # 2. Write the standard text configs matching your Playground selection
           cat << 'EOF' > ~/.config/rclone/rclone.conf
           [personaldrive]
           type = drive
           scope = drive.file
           EOF
 
-          # 3. Append secrets securely using echo to prevent character stripping
+          # 3. Append secrets securely
           echo "client_id = $GDRIVE_CLIENT_ID" >> ~/.config/rclone/rclone.conf
           echo "client_secret = $GDRIVE_CLIENT_SECRET" >> ~/.config/rclone/rclone.conf
           echo 'token = {"access_token":"","token_type":"Bearer","refresh_token":"'"$GDRIVE_REFRESH_TOKEN"'","expiry":"0001-01-01T00:00:00Z"}' >> ~/.config/rclone/rclone.conf
 
-          # 4. Upload and automatically overwrite files in your folder
+          # 4. Upload directly to the specific Folder ID using app-specific scopes
           echo "Starting secure sync to personal Google Drive folder..."
-          rclone copy screenshots/ personaldrive:${GDRIVE_FOLDER_ID} --drive-scope drive.file --verbose
+          rclone copy screenshots/ personaldrive,root_folder_id=${GDRIVE_FOLDER_ID}: --drive-scope drive.file --verbose
           
       - name: Commit updated screenshots
         run: |
