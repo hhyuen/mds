@@ -34,18 +34,18 @@ jobs:
           ls -la screenshots
           find screenshots -maxdepth 2 -type f | sort
 
-      # --- Fixed OAuth Google Drive Upload Step ---
+      # --- Fixed & Maintained Google Drive Upload Step ---
       - name: Upload screenshots to Google Drive
-        uses: JodevPro/simple-google-drive-upload@v2
+        uses: samuelint/google-drive-upload@v1.1.3
         with:
-          client_id: ${{ secrets.GDRIVE_CLIENT_ID }}
-          client_secret: ${{ secrets.GDRIVE_CLIENT_SECRET }}
-          refresh_token: ${{ secrets.GDRIVE_REFRESH_TOKEN }}
-          server_drive_parent_id: ${{ secrets.GDRIVE_FOLDER_ID }}
-          # Path to your local folder containing screenshots
-          local_path: 'screenshots/*' 
-          # Forces identical names to update/replace seamlessly
-          overwrite: true 
+          # Put your RAW Google Cloud JSON string back into this GitHub secret
+          credentials: ${{ secrets.GDRIVE_CREDENTIALS }}
+          folder_id: ${{ secrets.GDRIVE_FOLDER_ID }}
+          source_path: 'screenshots/*'
+          
+          # 🚨 CRITICAL FIXES FOR PERSONAL ACCOUNTS 🚨
+          user_owner: "yhhisfine@gmail.com" # 👈 Replace with your actual personal Gmail address
+          overwrite: true
           
       - name: Commit updated screenshots
         run: |
