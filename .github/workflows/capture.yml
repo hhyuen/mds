@@ -26,26 +26,47 @@ jobs:
       - name: Install Playwright browsers
         run: npx playwright install --with-deps chromium
 
-      - name: Run capture script
-        run: node capture.js
+    #  - name: Run capture script
+    #    run: node capture.js
 
-      - name: List files after capture
+    #  - name: List files after capture
+    #    run: |
+    #      ls -la screenshots
+    #      find screenshots -maxdepth 2 -type f | sort
+
+      - name: Install img2pdf
         run: |
-          ls -la screenshots
-          find screenshots -maxdepth 2 -type f | sort
+          python3 -m pip install --upgrade pip
+          python3 -m pip install img2pdf
 
+      - name: Create merged PDF
+        run: |
+          mkdir -p output
+          find screenshots -type f -name '*.png' | sort > png-list.txt
+          python3 - <<'PY'
+          import pathlib
+          import img2pdf
+
+          files = pathlib.Path("png-list.txt").read_text().splitlines()
+          if not files:
+              raise SystemExit("No PNG files found")
+          with open("output/screenshots.pdf", "wb") as f:
+              f.write(img2pdf.convert(files))
+          PY
+          ls -lh output/screenshots.pdf
+          
       # --- Fixed Personal OAuth Upload Step ---
       - name: Setup Rclone Engine
         uses: AnimMouse/setup-rclone@v1
         with:
           rclone_version: 'v1.75.0'
 
-      - name: Upload screenshots to Google Drive
+      - name: Upload PDF to Google Drive
         env:
           GDRIVE_CLIENT_ID: ${{ secrets.GDRIVE_CLIENT_ID }}
           GDRIVE_CLIENT_SECRET: ${{ secrets.GDRIVE_CLIENT_SECRET }}
-          GDRIVE_REFRESH_TOKEN: ${{ secrets.GDRIVE_REFRESH_TOKEN }}
           GDRIVE_FOLDER_ID: ${{ secrets.GDRIVE_FOLDER_ID }}
+          GDRIVE_TOKEN_JSON: ${{ secrets.GDRIVE_TOKEN_JSON }}
         run: |
           mkdir -p ~/.config/rclone
 
@@ -56,11 +77,10 @@ jobs:
           client_secret = ${GDRIVE_CLIENT_SECRET}
           scope = drive
           root_folder_id = ${GDRIVE_FOLDER_ID}
-          token = {"access_token":"ya29.placeholder","token_type":"Bearer","refresh_token":"${GDRIVE_REFRESH_TOKEN}","expiry":"2000-01-01T00:00:00Z"}
+          token = ${GDRIVE_TOKEN_JSON}
           EOF
 
-          rclone about personaldrive: -vv
-          rclone copy screenshots/ personaldrive: --create-empty-src-dirs -vv
+          rclone copy output/screenshots.pdf personaldrive: -vv
           
       - name: Commit updated screenshots
         run: |
