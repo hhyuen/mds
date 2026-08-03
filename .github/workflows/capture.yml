@@ -34,6 +34,15 @@ jobs:
           ls -la screenshots
           find screenshots -maxdepth 2 -type f | sort
 
+      # --- New Google Drive Upload Step ---
+      - name: Upload screenshots to Google Drive
+        uses: adityassarkar/google-drive-upload-gitaction@v1
+        with:
+          credentials: ${{ secrets.GDRIVE_CREDENTIALS }}
+          folderId: ${{ secrets.GDRIVE_FOLDER_ID }}
+          filename: "screenshots/*"
+          overwrite: "false"
+          
       - name: Commit updated screenshots
         run: |
           git config user.name "github-actions[bot]"
