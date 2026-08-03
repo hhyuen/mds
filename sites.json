@@ -44,16 +44,10 @@
   },
   {
     "name": "NAAIM Exposure Index",
-    "url": "https://naaim.org/programs/naaim-exposure-index/",
+    "url": "https://stockcharts.com/sc3/ui/?s=%21NAAIM&id=p26777962202",
     "file": "naaim.png",
-    "waitAfterLoadMs": 10000,
-	"scrollY": 1000,
-	"crop": {
-		"x": 60,
-		"y": 180,
-		"width": 2000,
-		"height": 1300
-		}
+    "waitAfterLoadMs": 7000,
+	"selector": "#chart-image"
   },
   {
     "name": "CME FedWatch Tool",
