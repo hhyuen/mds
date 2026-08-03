@@ -50,17 +50,19 @@ jobs:
           # 1. Create the rclone configuration folder directory
           mkdir -p ~/.config/rclone
 
-          # 2. Write the credentials with properly escaped JSON quotes
-          cat << EOF > ~/.config/rclone/rclone.conf
+          # 2. Write the standard text configs using single quotes to protect formatting
+          cat << 'EOF' > ~/.config/rclone/rclone.conf
           [personaldrive]
           type = drive
-          client_id = $GDRIVE_CLIENT_ID
-          client_secret = $GDRIVE_CLIENT_SECRET
           scope = drive.file
-          token = {\"access_token\":\"\",\"token_type\":\"Bearer\",\"refresh_token\":\"$GDRIVE_REFRESH_TOKEN\",\"expiry\":\"0001-01-01T00:00:00Z\"}
           EOF
 
-          # 3. Upload and automatically overwrite files in your folder
+          # 3. Append secrets securely using echo to prevent character stripping
+          echo "client_id = $GDRIVE_CLIENT_ID" >> ~/.config/rclone/rclone.conf
+          echo "client_secret = $GDRIVE_CLIENT_SECRET" >> ~/.config/rclone/rclone.conf
+          echo 'token = {"access_token":"","token_type":"Bearer","refresh_token":"'"$GDRIVE_REFRESH_TOKEN"'","expiry":"0001-01-01T00:00:00Z"}' >> ~/.config/rclone/rclone.conf
+
+          # 4. Upload and automatically overwrite files in your folder
           echo "Starting secure sync to personal Google Drive folder..."
           rclone copy screenshots/ personaldrive:${GDRIVE_FOLDER_ID} --drive-scope drive.file --verbose
           
