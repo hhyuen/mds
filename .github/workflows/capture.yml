@@ -41,7 +41,6 @@ jobs:
 
       - name: Create merged PDF
         run: |
-          mkdir -p output
           find screenshots -type f -name '*.png' | sort > png-list.txt
           python3 - <<'PY'
           import pathlib
@@ -50,10 +49,10 @@ jobs:
           files = pathlib.Path("png-list.txt").read_text().splitlines()
           if not files:
               raise SystemExit("No PNG files found")
-          with open("output/screenshots.pdf", "wb") as f:
+          with open("screenshots/screenshots.pdf", "wb") as f:
               f.write(img2pdf.convert(files))
           PY
-          ls -lh output/screenshots.pdf
+          ls -lh screenshots/screenshots.pdf
           
       # --- Fixed Personal OAuth Upload Step ---
       - name: Setup Rclone Engine
