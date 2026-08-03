@@ -47,12 +47,13 @@ jobs:
           GDRIVE_REFRESH_TOKEN: ${{ secrets.GDRIVE_REFRESH_TOKEN }}
           GDRIVE_FOLDER_ID: ${{ secrets.GDRIVE_FOLDER_ID }}
         run: |
-          # 1. Dynamically configure Rclone to use your personal OAuth profile
+          # 1. Dynamically configure Rclone using your personal OAuth profile non-interactively
           rclone config create personaldrive drive \
             client_id "$GDRIVE_CLIENT_ID" \
             client_secret "$GDRIVE_CLIENT_SECRET" \
             token "{\"access_token\":\"\",\"token_type\":\"Bearer\",\"refresh_token\":\"$GDRIVE_REFRESH_TOKEN\",\"expiry\":\"0001-01-01T00:00:00Z\"}" \
-            scope "drive.file"
+            scope "drive.file" \
+            --non-interactive # 👈 ADD THIS FLAG HERE
 
           # 2. Upload and automatically overwrite files in your folder
           echo "Starting secure sync to personal Google Drive folder..."
