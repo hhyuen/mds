@@ -34,16 +34,21 @@ jobs:
           ls -la screenshots
           find screenshots -maxdepth 2 -type f | sort
 
-      # --- New Google Drive Upload Step ---
+      # --- Updated OAuth Google Drive Upload Step ---
       - name: Upload screenshots to Google Drive
-        uses: adityak74/google-drive-upload-git-action@main
+        uses: baimamboukar/google-drive-upload-action@v1.1.0
         with:
-          credentials: ${{ secrets.GDRIVE_CREDENTIALS }}
+          credentials: |
+            {
+              "client_id": "${{ secrets.GDRIVE_CLIENT_ID }}",
+              "client_secret": "${{ secrets.GDRIVE_CLIENT_SECRET }}",
+              "refresh_token": "${{ secrets.GDRIVE_REFRESH_TOKEN }}"
+            }
           folderId: ${{ secrets.GDRIVE_FOLDER_ID }}
-          filename: "screenshots/*"
-          overwrite: "true"
-          supportsAllDrives: "true"
-          useCompleteSourceFilenameAsName: "true"
+          # The path to your local screenshots folder
+          filename: 'screenshots/' 
+          # Setting to true replaces files with identical names in the folder
+          overwrite: true 
           
       - name: Commit updated screenshots
         run: |
