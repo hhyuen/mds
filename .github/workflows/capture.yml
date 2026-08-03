@@ -40,31 +40,27 @@ jobs:
         with:
           rclone_version: 'v1.75.0'
 
-      - name: Upload screenshots to Google Drive (OAuth)
+      - name: Upload screenshots to Google Drive
         env:
           GDRIVE_CLIENT_ID: ${{ secrets.GDRIVE_CLIENT_ID }}
           GDRIVE_CLIENT_SECRET: ${{ secrets.GDRIVE_CLIENT_SECRET }}
           GDRIVE_REFRESH_TOKEN: ${{ secrets.GDRIVE_REFRESH_TOKEN }}
           GDRIVE_FOLDER_ID: ${{ secrets.GDRIVE_FOLDER_ID }}
         run: |
-          # 1. Create the rclone configuration folder directory
           mkdir -p ~/.config/rclone
 
-          # 2. Write the standard text configs matching your Playground selection
-          cat << 'EOF' > ~/.config/rclone/rclone.conf
+          cat > ~/.config/rclone/rclone.conf <<EOF
           [personaldrive]
           type = drive
-          scope = drive.file
+          client_id = ${GDRIVE_CLIENT_ID}
+          client_secret = ${GDRIVE_CLIENT_SECRET}
+          scope = drive
+          root_folder_id = ${GDRIVE_FOLDER_ID}
+          token = {"access_token":"ya29.placeholder","token_type":"Bearer","refresh_token":"${GDRIVE_REFRESH_TOKEN}","expiry":"2000-01-01T00:00:00Z"}
           EOF
 
-          # 3. Append secrets securely
-          echo "client_id = $GDRIVE_CLIENT_ID" >> ~/.config/rclone/rclone.conf
-          echo "client_secret = $GDRIVE_CLIENT_SECRET" >> ~/.config/rclone/rclone.conf
-          echo 'token = {"access_token":"","token_type":"Bearer","refresh_token":"'"$GDRIVE_REFRESH_TOKEN"'","expiry":"0001-01-01T00:00:00Z"}' >> ~/.config/rclone/rclone.conf
-
-          # 4. Upload and automatically overwrite files in your folder cleanly
-          echo "Starting secure sync to personal Google Drive folder..."
-          rclone copy screenshots/ personaldrive:${GDRIVE_FOLDER_ID} --drive-scope drive.file --verbose
+          rclone about personaldrive: -vv
+          rclone copy screenshots/ personaldrive: --create-empty-src-dirs -vv
           
       - name: Commit updated screenshots
         run: |
