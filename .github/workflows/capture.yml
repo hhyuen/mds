@@ -41,7 +41,9 @@ jobs:
           credentials: ${{ secrets.GDRIVE_CREDENTIALS }}
           folderId: ${{ secrets.GDRIVE_FOLDER_ID }}
           filename: "screenshots/*"
-          overwrite: "false"
+          overwrite: "true"
+          supportsAllDrives: "true"
+          useCompleteSourceFilenameAsName: "true"
           
       - name: Commit updated screenshots
         run: |
