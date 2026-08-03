@@ -34,15 +34,29 @@ jobs:
     #      ls -la screenshots
     #      find screenshots -maxdepth 2 -type f | sort
 
-      # --- Fixed & Quota-Bypassed Google Drive Upload Step ---
-      - name: Upload screenshots to Google Drive
-        uses: samuelint/google-drive-upload@v1.1.3
+      # --- Stable & Permanent Personal OAuth Upload Step ---
+      - name: Setup Rclone Engine
+        uses: AnimMouse/setup-rclone@v1
         with:
-          service_account: ${{ secrets.GDRIVE_CREDENTIALS }}
-          folder_id: ${{ secrets.GDRIVE_FOLDER_ID }}
-          source_path: 'screenshots/'
-          # 🚨 FORCE GOOGLE TO USE YOUR PERSONAL ACCOUNT STORAGE QUOTA 🚨
-          args: '--drive-impersonate yhhisfine@gmail.com' # 👈 Replace with your real Gmail address
+          rclone_version: 'v1.75.0'
+
+      - name: Upload screenshots to Google Drive (OAuth)
+        env:
+          GDRIVE_CLIENT_ID: ${{ secrets.GDRIVE_CLIENT_ID }}
+          GDRIVE_CLIENT_SECRET: ${{ secrets.GDRIVE_CLIENT_SECRET }}
+          GDRIVE_REFRESH_TOKEN: ${{ secrets.GDRIVE_REFRESH_TOKEN }}
+          GDRIVE_FOLDER_ID: ${{ secrets.GDRIVE_FOLDER_ID }}
+        run: |
+          # 1. Dynamically configure Rclone to use your personal OAuth profile
+          rclone config create personaldrive drive \
+            client_id "$GDRIVE_CLIENT_ID" \
+            client_secret "$GDRIVE_CLIENT_SECRET" \
+            token "{\"access_token\":\"\",\"token_type\":\"Bearer\",\"refresh_token\":\"$GDRIVE_REFRESH_TOKEN\",\"expiry\":\"0001-01-01T00:00:00Z\"}" \
+            scope "drive.file"
+
+          # 2. Upload and automatically overwrite files in your folder
+          echo "Starting secure sync to personal Google Drive folder..."
+          rclone copy screenshots/ personaldrive:${GDRIVE_FOLDER_ID} --verbose
           
       - name: Commit updated screenshots
         run: |
