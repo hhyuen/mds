@@ -35,15 +35,6 @@
       margin: 0 auto;
       padding: 28px 0 56px;
     }
-	.top-trigger {
-	  position: fixed;
-	  top: 0;
-	  left: 0;
-	  right: 0;
-	  height: 48px;
-	  z-index: 40;
-	  background: transparent;
-	}
     .hero {
       position: sticky;
       top: 0;
@@ -52,26 +43,36 @@
       background: linear-gradient(180deg, rgba(10,17,32,.92), rgba(10,17,32,.72));
       border-bottom: 1px solid rgba(255,255,255,.06);
     }
-    .hero-inner {
-      width: min(calc(100% - 28px), var(--max));
-      margin: 0 auto;
-      padding: 18px 0 14px;
-    }
-	.hero-top {
+	.hero-inner {
+	  width: min(calc(100% - 28px), var(--max));
+	  margin: 0 auto;
+	  padding: 18px 0 14px;
 	  overflow: hidden;
-	  max-height: 220px;
+	  transition: padding .24s cubic-bezier(0.16, 1, 0.3, 1);
+	}
+	.hero-top {
+	  max-height: 160px;
 	  opacity: 1;
-	  transform: translateY(0);
-	  transition: max-height .24s ease, opacity .18s ease, transform .24s ease, margin .24s ease;
+	  overflow: hidden;
+	  transition:
+		max-height .24s cubic-bezier(0.16, 1, 0.3, 1),
+		opacity .18s ease,
+		margin .24s cubic-bezier(0.16, 1, 0.3, 1);
 	}
 
 	.hero.is-collapsed .hero-top {
 	  max-height: 0;
 	  opacity: 0;
-	  transform: translateY(-10px);
 	  margin: 0;
+	  pointer-events: none;
+	}
+	.hero.is-collapsed .hero-inner {
+	  padding: 6px 0;
 	}
 
+	.hero.is-collapsed .toc {
+	  margin-top: 0;
+	}
 	.hero {
 	  transition: background .2s ease, box-shadow .2s ease;
 	}
@@ -87,14 +88,15 @@
       font-size: .98rem;
       max-width: 74ch;
     }
-    .toc {
-      display: flex;
-      gap: 10px;
-      flex-wrap: wrap;
-      margin-top: 14px;
-    }
+	.toc {
+	  display: flex;
+	  gap: 10px;
+	  flex-wrap: wrap;
+	  margin-top: 14px;
+	  transition: margin-top .24s cubic-bezier(0.16, 1, 0.3, 1);
+	}
     .toc a {
-      padding: 8px 12px;
+      padding: 6px 12px;
       background: rgba(255,255,255,.05);
       border: 1px solid rgba(255,255,255,.08);
       border-radius: 999px;
@@ -266,7 +268,7 @@
   </style>
 </head>
 <body>
-	<div class="top-trigger" id="topTrigger" aria-hidden="true"></div>
+
 	<header class="hero" id="hero">
 	  <div class="hero-inner">
 		<div class="hero-top" id="heroTop">
@@ -283,7 +285,6 @@
 		</nav>
 	  </div>
 	</header>
-
   <main class="wrap">
     <section id="performance">
       <div class="section-head"><div><h2>Market Performance</h2><p>Start with the broad tape, then compare daily and weekly participation through the heat maps.</p></div></div>
@@ -445,49 +446,53 @@
     });
 	
 	const hero = document.getElementById('hero');
-    const topTrigger = document.getElementById('topTrigger');
 
-	const HERO_COLLAPSE_Y = 170;
-	const HERO_EXPAND_Y = 110;
+	const HERO_COLLAPSE_Y = 220;
+	const HERO_EXPAND_Y = 70;
+
 	let heroPinnedOpen = false;
 	let heroCollapsed = false;
+	let ticking = false;
 
-	function updateHeroState() {
-	  if (heroPinnedOpen) {
-		heroCollapsed = false;
-	  } else if (!heroCollapsed && window.scrollY >= HERO_COLLAPSE_Y) {
-		heroCollapsed = true;
-	  } else if (heroCollapsed && window.scrollY <= HERO_EXPAND_Y) {
-		heroCollapsed = false;
-	  }
-
-	  hero.classList.toggle('is-collapsed', heroCollapsed);
+	function applyHeroState() {
+	  hero.classList.toggle('is-collapsed', heroCollapsed && !heroPinnedOpen);
 	}
 
-    window.addEventListener('scroll', updateHeroState, { passive: true });
+	function updateHeroState() {
+	  const y = window.scrollY;
 
-    topTrigger.addEventListener('mouseenter', () => {
-      if (window.scrollY >= HERO_COLLAPSE_Y) {
-        heroPinnedOpen = true;
-        hero.classList.remove('is-collapsed');
-      }
-    });
+	  if (!heroPinnedOpen) {
+		if (!heroCollapsed && y >= HERO_COLLAPSE_Y) {
+		  heroCollapsed = true;
+		} else if (heroCollapsed && y <= HERO_EXPAND_Y) {
+		  heroCollapsed = false;
+		}
+	  }
 
-    hero.addEventListener('mouseenter', () => {
-      if (window.scrollY >= HERO_COLLAPSE_Y) {
-        heroPinnedOpen = true;
-        hero.classList.remove('is-collapsed');
-      }
-    });
+	  applyHeroState();
+	  ticking = false;
+	}
 
-    hero.addEventListener('mouseleave', () => {
-      if (window.scrollY >= HERO_COLLAPSE_Y) {
-        heroPinnedOpen = false;
-        hero.classList.add('is-collapsed');
-      }
-    });
+	window.addEventListener('scroll', () => {
+	  if (!ticking) {
+		ticking = true;
+		requestAnimationFrame(updateHeroState);
+	  }
+	}, { passive: true });
 
-    updateHeroState();
+	hero.addEventListener('mouseenter', () => {
+	  if (heroCollapsed) {
+		heroPinnedOpen = true;
+		applyHeroState();
+	  }
+	});
+
+	hero.addEventListener('mouseleave', () => {
+	  heroPinnedOpen = false;
+	  applyHeroState();
+	});
+
+	updateHeroState();
   </script>
 </body>
 </html>
