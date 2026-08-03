@@ -61,12 +61,12 @@ jobs:
         with:
           rclone_version: 'v1.75.0'
 
-      - name: Upload PDF to Google Drive
+      - name: Upload screenshots to Google Drive
         env:
           GDRIVE_CLIENT_ID: ${{ secrets.GDRIVE_CLIENT_ID }}
           GDRIVE_CLIENT_SECRET: ${{ secrets.GDRIVE_CLIENT_SECRET }}
+          GDRIVE_REFRESH_TOKEN: ${{ secrets.GDRIVE_REFRESH_TOKEN }}
           GDRIVE_FOLDER_ID: ${{ secrets.GDRIVE_FOLDER_ID }}
-          GDRIVE_TOKEN_JSON: ${{ secrets.GDRIVE_TOKEN_JSON }}
         run: |
           mkdir -p ~/.config/rclone
 
@@ -77,10 +77,11 @@ jobs:
           client_secret = ${GDRIVE_CLIENT_SECRET}
           scope = drive
           root_folder_id = ${GDRIVE_FOLDER_ID}
-          token = ${GDRIVE_TOKEN_JSON}
+          token = {"access_token":"ya29.placeholder","token_type":"Bearer","refresh_token":"${GDRIVE_REFRESH_TOKEN}","expiry":"2000-01-01T00:00:00Z"}
           EOF
 
-          rclone copy output/screenshots.pdf personaldrive: -vv
+          rclone about personaldrive: -vv
+          rclone copy screenshots/ personaldrive: --create-empty-src-dirs -vv
           
       - name: Commit updated screenshots
         run: |
