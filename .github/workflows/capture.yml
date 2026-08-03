@@ -34,18 +34,14 @@ jobs:
           ls -la screenshots
           find screenshots -maxdepth 2 -type f | sort
 
-      # --- Fixed & Maintained Google Drive Upload Step ---
+      # --- Corrected samuelint Google Drive Upload Step ---
       - name: Upload screenshots to Google Drive
         uses: samuelint/google-drive-upload@v1.1.3
         with:
-          # Put your RAW Google Cloud JSON string back into this GitHub secret
-          credentials: ${{ secrets.GDRIVE_CREDENTIALS }}
+          # This action requires the "service_account" parameter name
+          service_account: ${{ secrets.GDRIVE_CREDENTIALS }}
           folder_id: ${{ secrets.GDRIVE_FOLDER_ID }}
-          source_path: 'screenshots/*'
-          
-          # 🚨 CRITICAL FIXES FOR PERSONAL ACCOUNTS 🚨
-          user_owner: "yhhisfine@gmail.com" # 👈 Replace with your actual personal Gmail address
-          overwrite: true
+          source_path: 'screenshots/'
           
       - name: Commit updated screenshots
         run: |
