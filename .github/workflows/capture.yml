@@ -30,7 +30,7 @@ jobs:
         run: node capture.js
 
       - name: List files after capture
-       run: |
+        run: |
           ls -la screenshots
           find screenshots -maxdepth 2 -type f | sort
 
