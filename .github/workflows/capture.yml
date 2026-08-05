@@ -34,25 +34,13 @@ jobs:
           ls -la screenshots
           find screenshots -maxdepth 2 -type f | sort
 
-      - name: Install img2pdf
+      - name: Install PDF dependencies
         run: |
           python3 -m pip install --upgrade pip
-          python3 -m pip install img2pdf
+          python3 -m pip install reportlab pillow
 
-      - name: Create merged PDF
-        run: |
-          find screenshots -type f -name '*.png' | sort > png-list.txt
-          python3 - <<'PY'
-          import pathlib
-          import img2pdf
-
-          files = pathlib.Path("png-list.txt").read_text().splitlines()
-          if not files:
-              raise SystemExit("No PNG files found")
-          with open("screenshots/screenshots.pdf", "wb") as f:
-              f.write(img2pdf.convert(files))
-          PY
-          ls -lh screenshots/screenshots.pdf
+      - name: Create captioned PDF
+        run: python3 create_pdf.py
           
       # --- Fixed Personal OAuth Upload Step ---
       - name: Setup Rclone Engine
