@@ -26,13 +26,13 @@ jobs:
       - name: Install Playwright browsers
         run: npx playwright install --with-deps chromium
 
-   #   - name: Run capture script
-  #      run: node capture.js
+      - name: Run capture script
+        run: node capture.js
 
-  #    - name: List files after capture
-  #      run: |
-   #       ls -la screenshots
-   #       find screenshots -maxdepth 2 -type f | sort
+      - name: List files after capture
+        run: |
+          ls -la screenshots
+          find screenshots -maxdepth 2 -type f | sort
 
       - name: Install PDF dependencies
         run: |
