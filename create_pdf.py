@@ -13,6 +13,7 @@ Edit ORDERED_IMAGES to control:
 from pathlib import Path
 from reportlab.lib.pagesizes import A4
 from reportlab.pdfgen import canvas
+from reportlab.pdfbase.pdfmetrics import stringWidth
 from reportlab.lib.utils import ImageReader
 from PIL import Image
 
@@ -45,6 +46,29 @@ ORDERED_IMAGES = [
 
 PAGE_W, PAGE_H = A4
 LEFT, RIGHT, TOP, BOTTOM, CAPTION_GAP = 40, 40, 50, 40, 20
+CAPTION_FONT = "Helvetica-Bold"
+CAPTION_SIZE = 12
+CAPTION_LINE_HEIGHT = 15
+
+
+def wrap_text(text, font_name, font_size, max_width):
+    """Break text into lines that each fit within max_width."""
+    words = text.split()
+    lines = []
+    current = ""
+
+    for word in words:
+        candidate = f"{current} {word}".strip()
+        if stringWidth(candidate, font_name, font_size) <= max_width:
+            current = candidate
+        else:
+            if current:
+                lines.append(current)
+            current = word
+    if current:
+        lines.append(current)
+
+    return lines or [text]
 
 
 def build_pdf():
@@ -64,16 +88,24 @@ def build_pdf():
         raise SystemExit("No matching PNG files found in screenshots/. Check ORDERED_IMAGES.")
 
     c = canvas.Canvas(str(OUTPUT_PDF), pagesize=A4)
+    max_caption_width = PAGE_W - LEFT - RIGHT
 
     for path, caption in files:
-        c.setFont("Helvetica-Bold", 12)
-        c.drawString(LEFT, PAGE_H - TOP, caption)
+        c.setFont(CAPTION_FONT, CAPTION_SIZE)
+        caption_lines = wrap_text(caption, CAPTION_FONT, CAPTION_SIZE, max_caption_width)
+
+        caption_block_height = len(caption_lines) * CAPTION_LINE_HEIGHT
+
+        text_y = PAGE_H - TOP
+        for line in caption_lines:
+            c.drawString(LEFT, text_y, line)
+            text_y -= CAPTION_LINE_HEIGHT
 
         img = Image.open(path)
         iw, ih = img.size
 
         max_w = PAGE_W - LEFT - RIGHT
-        max_h = PAGE_H - TOP - BOTTOM - CAPTION_GAP - 20
+        max_h = PAGE_H - TOP - BOTTOM - CAPTION_GAP - caption_block_height
 
         scale = min(max_w / iw, max_h / ih)
         draw_w, draw_h = iw * scale, ih * scale
