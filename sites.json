@@ -15,14 +15,14 @@
   },
   {
     "name": "Heat Map - Daily",
-    "url": "https://finviz.com/map?t=sec&st=d1",
+    "url": "https://finviz.com/map?t=sec_all",
     "file": "heatmap_d.png",
     "waitAfterLoadMs": 5000,
 	"selector": "canvas"
   },
   {
     "name": "Heat Map - Weekly",
-    "url": "https://finviz.com/map?t=sec&st=w1",
+    "url": "https://finviz.com/map?t=sec_all&st=w1",
     "file": "heatmap_w.png",
     "waitAfterLoadMs": 5000,
 	"selector": "canvas"
