@@ -170,7 +170,6 @@ async function handleFearGreed(page, site, targetFile) {
       document.documentElement.style.overflow = 'auto';
     });
   } catch (_) {}
-
   await sleep(1000);
 
   const element = page.locator('div.market-tabbed-container').first();
