@@ -14,6 +14,12 @@
     "selector": "section[data-testid=\"calendar-event-table\"]"
   },
   {
+	  "name": "SpotGamma Earnings",
+	  "url": "https://dashboard.spotgamma.com/earnings",
+	  "file": "spotgamma-earnings.png",
+	  "waitAfterLoadMs": 5000
+  },
+  {
     "name": "Heat Map - Daily",
     "url": "https://finviz.com/map?t=sec_all",
     "file": "heatmap_d.png",
