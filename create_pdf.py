@@ -39,6 +39,7 @@ ORDERED_IMAGES = [
     ("t10y3m.png", "5. Economic Indicator — 10-Year Treasury Constant Maturity Minus 30Month Treasury Constant Maturity (Positve means investors expect the economy to grow and demand higher interest rates against inflation; Negative means extreme investor anxiety, investors believe economic trouble is brewing soon and rush to lock in long-term 10-year yields before the Federal Reserve is forced to slash interest rates to combat a recession)"),
     ("yieldcurve.png", "5. Economic Indicator — Normally slopes up from left to right, implies healthy, expanding economy with normal inflation expecations; Flat implies economic transition or uncertainty; Inverted implies heavy fear of an impending recession"),
     ("earnings-calendar.png", "6. Imortant Events — Earnings Calendar (For upcoming big names)"),
+    ("spotgamma-earnings.png", "6. Implied Earnings Moves Chart for Top Names — The estimated move is based off of the at-the-money straddle for the first expiration date after a stock’s scheduled earnings date"),
     ("economic-calendar.png", "6. Imortant Events — Economic Calendar (For upcoming major US events)")
     # Add more (filename, caption) pairs here as needed
 ]
