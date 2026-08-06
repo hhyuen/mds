@@ -8,7 +8,7 @@ Edit ORDERED_IMAGES to control:
   - which images are included
   - what order they appear in the PDF
   - what caption is printed above each image
-"""
+""" 
 
 from pathlib import Path
 from reportlab.lib.pagesizes import A4
