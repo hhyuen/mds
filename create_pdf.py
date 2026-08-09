@@ -4,14 +4,18 @@ create_pdf.py
 Builds a single captioned PDF from screenshots in the screenshots/ folder.
 Order and captions are hardcoded below since filenames don't change.
 
+Fix vs previous version: each page is now sized to match the image's
+native pixel resolution (plus a caption header strip), instead of forcing
+every screenshot into a fixed A4 box. This avoids downscaling that made
+chart text/data points unreadable.
+
 Edit ORDERED_IMAGES to control:
   - which images are included
   - what order they appear in the PDF
   - what caption is printed above each image
-""" 
+"""
 
 from pathlib import Path
-from reportlab.lib.pagesizes import A4
 from reportlab.pdfgen import canvas
 from reportlab.pdfbase.pdfmetrics import stringWidth
 from reportlab.lib.utils import ImageReader
@@ -45,11 +49,18 @@ ORDERED_IMAGES = [
 ]
 # ------------------------------------------------------------------------------------------
 
-PAGE_W, PAGE_H = A4
-LEFT, RIGHT, TOP, BOTTOM, CAPTION_GAP = 40, 40, 50, 40, 20
+# Points-per-pixel at 1:1 (72 pt/inch, assume image pixels map directly to points
+# so resolution is preserved exactly — no scaling up or down).
+PPI_SCALE = 1.0
+
+MARGIN_LEFT = 20
+MARGIN_RIGHT = 20
+MARGIN_TOP = 20
+MARGIN_BOTTOM = 20
 CAPTION_FONT = "Helvetica-Bold"
-CAPTION_SIZE = 12
-CAPTION_LINE_HEIGHT = 15
+CAPTION_SIZE = 14
+CAPTION_LINE_HEIGHT = 18
+CAPTION_GAP_BELOW = 10
 
 
 def wrap_text(text, font_name, font_size, max_width):
@@ -88,42 +99,46 @@ def build_pdf():
     if not files:
         raise SystemExit("No matching PNG files found in screenshots/. Check ORDERED_IMAGES.")
 
-    c = canvas.Canvas(str(OUTPUT_PDF), pagesize=A4)
-    max_caption_width = PAGE_W - LEFT - RIGHT
+    c = None
 
     for path, caption in files:
-        c.setFont(CAPTION_FONT, CAPTION_SIZE)
-        caption_lines = wrap_text(caption, CAPTION_FONT, CAPTION_SIZE, max_caption_width)
-
-        caption_block_height = len(caption_lines) * CAPTION_LINE_HEIGHT
-
-        text_y = PAGE_H - TOP
-        for line in caption_lines:
-            c.drawString(LEFT, text_y, line)
-            text_y -= CAPTION_LINE_HEIGHT
-
         img = Image.open(path)
         iw, ih = img.size
 
-        max_w = PAGE_W - LEFT - RIGHT
-        max_h = PAGE_H - TOP - BOTTOM - CAPTION_GAP - caption_block_height
+        draw_w = iw * PPI_SCALE
+        draw_h = ih * PPI_SCALE
 
-        scale = min(max_w / iw, max_h / ih)
-        draw_w, draw_h = iw * scale, ih * scale
+        content_width = draw_w
+        max_caption_width = content_width  # captions wrap to the image width
 
-        x = LEFT + (max_w - draw_w) / 2
-        y = BOTTOM + (max_h - draw_h) / 2
+        caption_lines = wrap_text(caption, CAPTION_FONT, CAPTION_SIZE, max_caption_width)
+        caption_block_height = len(caption_lines) * CAPTION_LINE_HEIGHT
 
+        page_w = MARGIN_LEFT + content_width + MARGIN_RIGHT
+        page_h = MARGIN_TOP + caption_block_height + CAPTION_GAP_BELOW + draw_h + MARGIN_BOTTOM
+
+        if c is None:
+            c = canvas.Canvas(str(OUTPUT_PDF), pagesize=(page_w, page_h))
+        else:
+            c.setPageSize((page_w, page_h))
+
+        c.setFont(CAPTION_FONT, CAPTION_SIZE)
+        text_y = page_h - MARGIN_TOP - CAPTION_SIZE
+        for line in caption_lines:
+            c.drawString(MARGIN_LEFT, text_y, line)
+            text_y -= CAPTION_LINE_HEIGHT
+
+        image_y = MARGIN_BOTTOM
         c.drawImage(
             ImageReader(img),
-            x, y,
+            MARGIN_LEFT, image_y,
             width=draw_w, height=draw_h,
-            preserveAspectRatio=True, mask='auto'
+            preserveAspectRatio=False, mask='auto'
         )
         c.showPage()
 
     c.save()
-    print(f"Created {OUTPUT_PDF} with {len(files)} page(s).")
+    print(f"Created {OUTPUT_PDF} with {len(files)} page(s) at native resolution.")
 
 
 if __name__ == "__main__":
