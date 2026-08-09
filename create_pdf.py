@@ -1,13 +1,18 @@
 """
 create_pdf.py
 
-Builds a single captioned PDF from screenshots in the screenshots/ folder.
-Order and captions are hardcoded below since filenames don't change.
+Builds a single captioned PDF from screenshots in the screenshots/ folder,
+in a hardcoded custom order, WITHOUT losing image quality.
 
-Fix vs previous version: each page is now sized to match the image's
-native pixel resolution (plus a caption header strip), instead of forcing
-every screenshot into a fixed A4 box. This avoids downscaling that made
-chart text/data points unreadable.
+Key fix vs previous versions:
+  - Captions are burned onto each PNG using PIL (lossless pixel operations),
+    adding a plain white strip above the original screenshot and drawing
+    text on that strip only. The chart/screenshot pixels themselves are
+    never touched, resampled, or recompressed.
+  - The captioned PNGs are then assembled into a PDF using img2pdf, which
+    embeds images byte-for-byte with NO re-encoding (unlike ReportLab's
+    drawImage, which JPEG-compresses images by default and blurs fine
+    chart text/candlesticks).
 
 Edit ORDERED_IMAGES to control:
   - which images are included
@@ -16,12 +21,13 @@ Edit ORDERED_IMAGES to control:
 """
 
 from pathlib import Path
-from reportlab.pdfgen import canvas
-from reportlab.pdfbase.pdfmetrics import stringWidth
-from reportlab.lib.utils import ImageReader
-from PIL import Image
+from PIL import Image, ImageDraw, ImageFont
+import img2pdf
+import textwrap
+import shutil
 
 SCREENSHOTS_DIR = Path("screenshots")
+CAPTIONED_DIR = SCREENSHOTS_DIR / "_captioned"
 OUTPUT_PDF = SCREENSHOTS_DIR / "screenshots.pdf"
 
 # --- EDIT THIS LIST: (filename, caption) in the exact order you want them in the PDF ---
@@ -49,29 +55,33 @@ ORDERED_IMAGES = [
 ]
 # ------------------------------------------------------------------------------------------
 
-# Points-per-pixel at 1:1 (72 pt/inch, assume image pixels map directly to points
-# so resolution is preserved exactly — no scaling up or down).
-PPI_SCALE = 1.0
-
-MARGIN_LEFT = 20
-MARGIN_RIGHT = 20
-MARGIN_TOP = 20
-MARGIN_BOTTOM = 20
-CAPTION_FONT = "Helvetica-Bold"
-CAPTION_SIZE = 14
-CAPTION_LINE_HEIGHT = 18
-CAPTION_GAP_BELOW = 10
+FONT_SIZE = 26
+CAPTION_PADDING = 16
+LINE_SPACING = 6
+BG_COLOR = (255, 255, 255)
+TEXT_COLOR = (0, 0, 0)
 
 
-def wrap_text(text, font_name, font_size, max_width):
-    """Break text into lines that each fit within max_width."""
+def get_font(size):
+    # DejaVuSans-Bold ships with most Linux images (incl. GitHub Actions ubuntu-latest).
+    candidates = [
+        "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf",
+        "/usr/share/fonts/truetype/liberation/LiberationSans-Bold.ttf",
+    ]
+    for path in candidates:
+        if Path(path).exists():
+            return ImageFont.truetype(path, size)
+    return ImageFont.load_default()
+
+
+def wrap_caption(draw, text, font, max_width):
     words = text.split()
     lines = []
     current = ""
-
     for word in words:
         candidate = f"{current} {word}".strip()
-        if stringWidth(candidate, font_name, font_size) <= max_width:
+        w = draw.textlength(candidate, font=font)
+        if w <= max_width:
             current = candidate
         else:
             if current:
@@ -79,66 +89,65 @@ def wrap_text(text, font_name, font_size, max_width):
             current = word
     if current:
         lines.append(current)
-
     return lines or [text]
 
 
+def add_caption(src_path: Path, caption: str, dst_path: Path):
+    img = Image.open(src_path).convert("RGB")
+    iw, ih = img.size
+
+    font = get_font(FONT_SIZE)
+
+    dummy = Image.new("RGB", (iw, 10))
+    dummy_draw = ImageDraw.Draw(dummy)
+    max_text_width = iw - 2 * CAPTION_PADDING
+    lines = wrap_caption(dummy_draw, caption, font, max_text_width)
+
+    line_height = FONT_SIZE + LINE_SPACING
+    caption_band_height = CAPTION_PADDING * 2 + line_height * len(lines)
+
+    new_img = Image.new("RGB", (iw, ih + caption_band_height), BG_COLOR)
+    draw = ImageDraw.Draw(new_img)
+
+    y = CAPTION_PADDING
+    for line in lines:
+        draw.text((CAPTION_PADDING, y), line, font=font, fill=TEXT_COLOR)
+        y += line_height
+
+    # Paste the ORIGINAL screenshot pixels unchanged — no resize, no recompression.
+    new_img.paste(img, (0, caption_band_height))
+
+    new_img.save(dst_path, format="PNG")  # PNG = lossless
+
+
 def build_pdf():
-    files = []
+    if CAPTIONED_DIR.exists():
+        shutil.rmtree(CAPTIONED_DIR)
+    CAPTIONED_DIR.mkdir(parents=True)
+
+    ordered_paths = []
     missing = []
+
     for filename, caption in ORDERED_IMAGES:
-        path = SCREENSHOTS_DIR / filename
-        if path.exists():
-            files.append((path, caption))
-        else:
+        src = SCREENSHOTS_DIR / filename
+        if not src.exists():
             missing.append(filename)
+            continue
+        dst = CAPTIONED_DIR / filename
+        add_caption(src, caption, dst)
+        ordered_paths.append(str(dst))
 
     if missing:
         print(f"Warning: missing files skipped: {missing}")
 
-    if not files:
+    if not ordered_paths:
         raise SystemExit("No matching PNG files found in screenshots/. Check ORDERED_IMAGES.")
 
-    c = None
+    with open(OUTPUT_PDF, "wb") as f:
+        f.write(img2pdf.convert(ordered_paths))
 
-    for path, caption in files:
-        img = Image.open(path)
-        iw, ih = img.size
-
-        draw_w = iw * PPI_SCALE
-        draw_h = ih * PPI_SCALE
-
-        content_width = draw_w
-        max_caption_width = content_width  # captions wrap to the image width
-
-        caption_lines = wrap_text(caption, CAPTION_FONT, CAPTION_SIZE, max_caption_width)
-        caption_block_height = len(caption_lines) * CAPTION_LINE_HEIGHT
-
-        page_w = MARGIN_LEFT + content_width + MARGIN_RIGHT
-        page_h = MARGIN_TOP + caption_block_height + CAPTION_GAP_BELOW + draw_h + MARGIN_BOTTOM
-
-        if c is None:
-            c = canvas.Canvas(str(OUTPUT_PDF), pagesize=(page_w, page_h))
-        else:
-            c.setPageSize((page_w, page_h))
-
-        c.setFont(CAPTION_FONT, CAPTION_SIZE)
-        text_y = page_h - MARGIN_TOP - CAPTION_SIZE
-        for line in caption_lines:
-            c.drawString(MARGIN_LEFT, text_y, line)
-            text_y -= CAPTION_LINE_HEIGHT
-
-        image_y = MARGIN_BOTTOM
-        c.drawImage(
-            ImageReader(img),
-            MARGIN_LEFT, image_y,
-            width=draw_w, height=draw_h,
-            preserveAspectRatio=False, mask='auto'
-        )
-        c.showPage()
-
-    c.save()
-    print(f"Created {OUTPUT_PDF} with {len(files)} page(s) at native resolution.")
+    shutil.rmtree(CAPTIONED_DIR)
+    print(f"Created {OUTPUT_PDF} with {len(ordered_paths)} page(s), original chart resolution preserved.")
 
 
 if __name__ == "__main__":
