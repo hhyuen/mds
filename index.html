@@ -43,39 +43,39 @@
       background: linear-gradient(180deg, rgba(10,17,32,.92), rgba(10,17,32,.72));
       border-bottom: 1px solid rgba(255,255,255,.06);
     }
-	.hero-inner {
-	  width: min(calc(100% - 28px), var(--max));
-	  margin: 0 auto;
-	  padding: 18px 0 14px;
-	  overflow: hidden;
-	  transition: padding .24s cubic-bezier(0.16, 1, 0.3, 1);
-	}
-	.hero-top {
-	  max-height: 160px;
-	  opacity: 1;
-	  overflow: hidden;
-	  transition:
-		max-height .24s cubic-bezier(0.16, 1, 0.3, 1),
-		opacity .18s ease,
-		margin .24s cubic-bezier(0.16, 1, 0.3, 1);
-	}
+    .hero-inner {
+      width: min(calc(100% - 28px), var(--max));
+      margin: 0 auto;
+      padding: 18px 0 14px;
+      overflow: hidden;
+      transition: padding .24s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .hero-top {
+      max-height: 160px;
+      opacity: 1;
+      overflow: hidden;
+      transition:
+        max-height .24s cubic-bezier(0.16, 1, 0.3, 1),
+        opacity .18s ease,
+        margin .24s cubic-bezier(0.16, 1, 0.3, 1);
+    }
 
-	.hero.is-collapsed .hero-top {
-	  max-height: 0;
-	  opacity: 0;
-	  margin: 0;
-	  pointer-events: none;
-	}
-	.hero.is-collapsed .hero-inner {
-	  padding: 6px 0;
-	}
+    .hero.is-collapsed .hero-top {
+      max-height: 0;
+      opacity: 0;
+      margin: 0;
+      pointer-events: none;
+    }
+    .hero.is-collapsed .hero-inner {
+      padding: 6px 0;
+    }
 
-	.hero.is-collapsed .toc {
-	  margin-top: 0;
-	}
-	.hero {
-	  transition: background .2s ease, box-shadow .2s ease;
-	}
+    .hero.is-collapsed .toc {
+      margin-top: 0;
+    }
+    .hero {
+      transition: background .2s ease, box-shadow .2s ease;
+    }
     h1 {
       margin: 0;
       font-size: clamp(1.6rem, 1.15rem + 1.8vw, 2.6rem);
@@ -88,13 +88,13 @@
       font-size: .98rem;
       max-width: 74ch;
     }
-	.toc {
-	  display: flex;
-	  gap: 10px;
-	  flex-wrap: wrap;
-	  margin-top: 14px;
-	  transition: margin-top .24s cubic-bezier(0.16, 1, 0.3, 1);
-	}
+    .toc {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 14px;
+      transition: margin-top .24s cubic-bezier(0.16, 1, 0.3, 1);
+    }
     .toc a {
       padding: 6px 12px;
       background: rgba(255,255,255,.05);
@@ -197,78 +197,74 @@
       .w-4 { grid-column: span 4; }
       .w-3 { grid-column: span 3; }
     }
-	@media (min-width: 700px) {
-	  #sentiment .grid {
-		grid-template-columns: 1fr 1.3fr;
-		grid-template-areas:
-		  "fear aaii"
-		  "naaim aaii";
-		align-items: stretch;
-	  }
+    @media (min-width: 700px) {
+      #sentiment .grid {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr);
+        grid-template-areas:
+          "fear aaii"
+          "cpc aaii"
+          "cot cot";
+        gap: var(--gap);
+        align-items: stretch;
+      }
 
-	  #sentiment .card-fear {
-		grid-area: fear;
-	  }
+      #sentiment .card-fear { grid-area: fear; }
+      #sentiment .card-cpc { grid-area: cpc; }
+      #sentiment .card-aaii { grid-area: aaii; }
+      #sentiment .card-cot { grid-area: cot; }
 
-	  #sentiment .card-naaim {
-		grid-area: naaim;
-	  }
+      #sentiment .card-aaii .thumb,
+      #sentiment .card-cot .thumb {
+        width: 100%;
+        height: auto;
+      }
+    }
+    @media (min-width: 700px) {
+      #breadth .grid {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+        grid-template-areas:
+          "ushl spx"
+          "ushl compq"
+          "nya indu";
+        gap: var(--gap);
+        align-items: stretch;
+      }
 
-	  #sentiment .card-aaii {
-		grid-area: aaii;
-	  }
+      #breadth .card-ushl { grid-area: ushl !important; }
+      #breadth .card-spx { grid-area: spx !important; }
+      #breadth .card-compq { grid-area: compq !important; }
+      #breadth .card-nya { grid-area: nya !important; }
+      #breadth .card-indu { grid-area: indu !important; }
+    }
+    @media (min-width: 700px) {
+      #events .grid {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+        grid-template-areas:
+          "earnings economic"
+          "spotgamma economic";
+        gap: var(--gap);
+        align-items: stretch;
+      }
 
-	  #sentiment .card-aaii .thumb {
-		width: 100%;
-		height: auto;
-	  }
-	}
-	@media (min-width: 700px) {
-	  #breadth .grid {
-		display: grid;
-		grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-		grid-template-areas:
-		  "ushl spx"
-		  "ushl compq"
-		  "nya indu";
-		gap: var(--gap);
-		align-items: stretch;
-	  }
+      #events .card-earnings  { grid-area: earnings; }
+      #events .card-economic  { grid-area: economic; }
+      #events .card-spotgamma { grid-area: spotgamma; }
 
-	  #breadth .card-ushl { grid-area: ushl !important; }
-	  #breadth .card-spx { grid-area: spx !important; }
-	  #breadth .card-compq { grid-area: compq !important; }
-	  #breadth .card-nya { grid-area: nya !important; }
-	  #breadth .card-indu { grid-area: indu !important; }
-	}
-	@media (min-width: 700px) {
-	  #events .grid {
-		display: grid;
-		grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-		grid-template-areas:
-		  "earnings economic"
-		  "spotgamma economic";
-		gap: var(--gap);
-		align-items: stretch;
-	  }
+      #events .card-earnings,
+      #events .card-economic,
+      #events .card-spotgamma {
+        width: 100%;
+        height: 100%;
+      }
 
-	  #events .card-earnings  { grid-area: earnings; }
-	  #events .card-economic  { grid-area: economic; }
-	  #events .card-spotgamma { grid-area: spotgamma; }
-
-	  #events .card-earnings,
-	  #events .card-economic,
-	  #events .card-spotgamma {
-		width: 100%;
-		height: 100%;
-	  }
-
-	  /* Optional: make SpotGamma chart fill its card more */
-	  #events .card-spotgamma .thumb {
-		width: 100%;
-		height: auto;
-	  }
-	}
+      #events .card-spotgamma .thumb {
+        width: 100%;
+        height: auto;
+      }
+    }
     .lightbox {
       position: fixed;
       inset: 0;
@@ -340,22 +336,22 @@
 </head>
 <body>
 
-	<header class="hero" id="hero">
-	  <div class="hero-inner">
-		<div class="hero-top" id="heroTop">
-		  <h1>Market Dashboard</h1>
-		  <div class="sub">A single-page visual briefing arranged from price action to sentiment, breadth, exits, macro structure, and upcoming events. First click enlarges a chart, then use the source button in the viewer to open its landing page.</div>
-		</div>
-		<nav class="toc">
-		  <a href="#performance">1. Market Performance</a>
-		  <a href="#sentiment">2. Market Sentiment</a>
-		  <a href="#breadth">3. Market Breadth</a>
-		  <a href="#exit">4. Exit Indicators</a>
-		  <a href="#economic">5. Economic Indicators</a>
-		  <a href="#events">6. Important Events</a>
-		</nav>
-	  </div>
-	</header>
+<header class="hero" id="hero">
+  <div class="hero-inner">
+    <div class="hero-top" id="heroTop">
+      <h1>Market Dashboard</h1>
+      <div class="sub">A single-page visual briefing arranged from price action to sentiment, breadth, exits, macro structure, and upcoming events. First click enlarges a chart, then use the source button in the viewer to open its landing page.</div>
+    </div>
+    <nav class="toc">
+      <a href="#performance">1. Market Performance</a>
+      <a href="#sentiment">2. Market Sentiment</a>
+      <a href="#breadth">3. Market Breadth</a>
+      <a href="#exit">4. Exit Indicators</a>
+      <a href="#economic">5. Economic Indicators</a>
+      <a href="#events">6. Important Events</a>
+    </nav>
+  </div>
+</header>
   <main class="wrap">
     <section id="performance">
       <div class="section-head"><div><h2>1. Market Performance</h2><p>Start with the broad tape, then compare daily and weekly participation through the heat maps.</p></div></div>
@@ -386,9 +382,13 @@
           <img class="thumb" src="screenshots/aaii.png" alt="AAII sentiment survey" width="1000" height="876">
           <div class="meta"><div><div class="title">AAII Investor Sentiment</div><div class="caption">Opinions of individual investors on where the market is heading in the next six months</div></div><div class="dim">A1Trading</div></div>
         </button>
-        <button class="card js-open card-naaim" data-title="NAAIM Exposure Index" data-dim="Actual adjustments active risk managers have made to client accounts over the past two weeks" data-img="screenshots/naaim.png" data-link="https://stockcharts.com/sc3/ui/?s=%21NAAIM&id=p26777962202">
-          <img class="thumb" src="screenshots/naaim.png" alt="NAAIM exposure index" width="990" height="664">
-          <div class="meta"><div><div class="title">NAAIM Exposure Index</div><div class="caption">Actual adjustments active risk managers have made to client accounts over the past two weeks</div></div><div class="dim">NAAIM</div></div>
+        <button class="card js-open card-cpc" data-title="Total Put/Call Ratio ($CPC)" data-dim="Measures overall options market sentiment; high values indicate elevated bearish hedging or panic, while low values signal excessive bullish complacency" data-img="screenshots/cpc.png" data-link="https://stockcharts.com/sc3/ui/?s=%24CPC&id=p84662272944">
+          <img class="thumb" src="screenshots/cpc.png" alt="Total Put Call Ratio" width="1400" height="800">
+          <div class="meta"><div><div class="title">Total Put/Call Ratio ($CPC)</div><div class="caption">Measured by dividing total traded put option volume by call option volume; high values indicate elevated bearish hedging or panic, while low values signal excessive bullish complacency</div></div><div class="dim">Stockcharts</div></div>
+        </button>
+        <button class="card js-open card-cot" data-title="Commitment of Traders (COT) Index" data-dim="COT Index tracks the Commercial's net positions in the futures market over the last 26 weeks" data-img="screenshots/cot.png" data-link="https://insider-week.com/en/cot/heatmap/#cot-table">
+          <img class="thumb" src="screenshots/cot.png" alt="Commitment of Traders COT Index" width="1400" height="2389">
+          <div class="meta"><div><div class="title">Commitment of Traders (COT) Index</div><div class="caption">COT Index tracks the Commercial's net positions in the futures market over the last 26 weeks</div></div><div class="dim">InsiderWeek</div></div>
         </button>
       </div>
     </section>
@@ -451,23 +451,23 @@
       </div>
     </section>
 
-	<section id="events">
-	  <div class="section-head"><div><h2>6. Important Events</h2><p>The page ends with the practical calendar layer: earnings first, then the longer economic slate.</p></div></div>
-	  <div class="grid">
-		<button class="card js-open card-earnings" data-title="Earnings Calendar" data-dim="For upcoming big names" data-img="screenshots/earnings-calendar.png" data-link="https://finance.yahoo.com/calendar/earnings/">
-		  <img class="thumb" src="screenshots/earnings-calendar.png" alt="Earnings calendar" width="1006" height="940">
-		  <div class="meta"><div><div class="title">Earnings Calendar</div><div class="caption">For upcoming big names</div></div><div class="dim">Yahoo! Finance</div></div>
-		</button>
-		<button class="card js-open card-spotgamma" data-title="Implied Earnings Moves Chart" data-dim="The estimated move is based off of the at-the-money straddle for the first expiration date after a stock’s scheduled earnings date" data-img="screenshots/spotgamma-earnings.png" data-link="https://spotgamma.com/free-tools/implied-earnings-moves/">
-		  <img class="thumb" src="screenshots/spotgamma-earnings.png" alt="Implied Earnings Moves Chart" width="800" height="536">
-		  <div class="meta"><div><div class="title">Implied Earnings Moves Chart</div><div class="caption">The estimated move is based off of the at-the-money straddle for the first expiration date after a stock’s scheduled earnings date</div></div><div class="dim">SpotGamma</div></div>
-		</button>
-		<button class="card js-open card-economic" data-title="Economic Calendar" data-dim="For upcoming major US events" data-img="screenshots/economic-calendar.png" data-link="https://finviz.com/calendar/economic?t=economic">
-		  <img class="thumb" src="screenshots/economic-calendar.png" alt="Economic calendar" width="595" height="1805">
-		  <div class="meta"><div><div class="title">Economic Calendar</div><div class="caption">For upcoming major US events</div></div><div class="dim">Finviz</div></div>
-		</button>
-	  </div>
-	</section>
+    <section id="events">
+      <div class="section-head"><div><h2>6. Important Events</h2><p>The page ends with the practical calendar layer: earnings first, then the longer economic slate.</p></div></div>
+      <div class="grid">
+        <button class="card js-open card-earnings" data-title="Earnings Calendar" data-dim="For upcoming big names" data-img="screenshots/earnings-calendar.png" data-link="https://finance.yahoo.com/calendar/earnings/">
+          <img class="thumb" src="screenshots/earnings-calendar.png" alt="Earnings calendar" width="1006" height="940">
+          <div class="meta"><div><div class="title">Earnings Calendar</div><div class="caption">For upcoming big names</div></div><div class="dim">Yahoo! Finance</div></div>
+        </button>
+        <button class="card js-open card-spotgamma" data-title="Implied Earnings Moves Chart" data-dim="The estimated move is based off of the at-the-money straddle for the first expiration date after a stock’s scheduled earnings date" data-img="screenshots/spotgamma-earnings.png" data-link="https://spotgamma.com/free-tools/implied-earnings-moves/">
+          <img class="thumb" src="screenshots/spotgamma-earnings.png" alt="Implied Earnings Moves Chart" width="800" height="536">
+          <div class="meta"><div><div class="title">Implied Earnings Moves Chart</div><div class="caption">The estimated move is based off of the at-the-money straddle for the first expiration date after a stock’s scheduled earnings date</div></div><div class="dim">SpotGamma</div></div>
+        </button>
+        <button class="card js-open card-economic" data-title="Economic Calendar" data-dim="For upcoming major US events" data-img="screenshots/economic-calendar.png" data-link="https://finviz.com/calendar/economic?t=economic">
+          <img class="thumb" src="screenshots/economic-calendar.png" alt="Economic calendar" width="595" height="1805">
+          <div class="meta"><div><div class="title">Economic Calendar</div><div class="caption">For upcoming major US events</div></div><div class="dim">Finviz</div></div>
+        </button>
+      </div>
+    </section>
   </main>
 
   <div class="lightbox" id="lightbox" aria-hidden="true">
@@ -519,54 +519,54 @@
     document.addEventListener('keydown', (e) => {
       if (e.key === 'Escape' && lightbox.classList.contains('open')) closeLightbox();
     });
-	
-	const hero = document.getElementById('hero');
 
-	const HERO_COLLAPSE_Y = 220;
-	const HERO_EXPAND_Y = 70;
+    const hero = document.getElementById('hero');
 
-	let heroPinnedOpen = false;
-	let heroCollapsed = false;
-	let ticking = false;
+    const HERO_COLLAPSE_Y = 220;
+    const HERO_EXPAND_Y = 70;
 
-	function applyHeroState() {
-	  hero.classList.toggle('is-collapsed', heroCollapsed && !heroPinnedOpen);
-	}
+    let heroPinnedOpen = false;
+    let heroCollapsed = false;
+    let ticking = false;
 
-	function updateHeroState() {
-	  const y = window.scrollY;
+    function applyHeroState() {
+      hero.classList.toggle('is-collapsed', heroCollapsed && !heroPinnedOpen);
+    }
 
-	  if (!heroPinnedOpen) {
-		if (!heroCollapsed && y >= HERO_COLLAPSE_Y) {
-		  heroCollapsed = true;
-		} else if (heroCollapsed && y <= HERO_EXPAND_Y) {
-		  heroCollapsed = false;
-		}
-	  }
-	  applyHeroState();
-	  ticking = false;
-	}
+    function updateHeroState() {
+      const y = window.scrollY;
 
-	window.addEventListener('scroll', () => {
-	  if (!ticking) {
-		ticking = true;
-		requestAnimationFrame(updateHeroState);
-	  }
-	}, { passive: true });
+      if (!heroPinnedOpen) {
+        if (!heroCollapsed && y >= HERO_COLLAPSE_Y) {
+          heroCollapsed = true;
+        } else if (heroCollapsed && y <= HERO_EXPAND_Y) {
+          heroCollapsed = false;
+        }
+      }
+      applyHeroState();
+      ticking = false;
+    }
 
-	hero.addEventListener('mouseenter', () => {
-	  if (heroCollapsed) {
-		heroPinnedOpen = true;
-		applyHeroState();
-	  }
-	});
+    window.addEventListener('scroll', () => {
+      if (!ticking) {
+        ticking = true;
+        requestAnimationFrame(updateHeroState);
+      }
+    }, { passive: true });
 
-	hero.addEventListener('mouseleave', () => {
-	  heroPinnedOpen = false;
-	  applyHeroState();
-	});
+    hero.addEventListener('mouseenter', () => {
+      if (heroCollapsed) {
+        heroPinnedOpen = true;
+        applyHeroState();
+      }
+    });
 
-	updateHeroState();
+    hero.addEventListener('mouseleave', () => {
+      heroPinnedOpen = false;
+      applyHeroState();
+    });
+
+    updateHeroState();
   </script>
 </body>
 </html>

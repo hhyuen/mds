@@ -48,13 +48,20 @@
 	"scrollY": 200,
 	"selector": "iframe.responsive-iframe"
   },
-  {
-    "name": "NAAIM Exposure Index",
-    "url": "https://stockcharts.com/sc3/ui/?s=%21NAAIM&id=p26777962202",
-    "file": "naaim.png",
-    "waitAfterLoadMs": 7000,
-	"selector": "#chart-image"
-  },
+	{
+	  "name": "Total Put/Call Ratio",
+	  "url": "https://stockcharts.com/sc3/ui/?s=%24CPC&id=p84662272944",
+	  "file": "cpc.png",
+	  "waitAfterLoadMs": 5000,
+	  "selector": "#chart-image"
+	},
+	{
+	  "name": "COT Index",
+	  "url": "https://insider-week.com/en/cot/heatmap/#cot-table",
+	  "file": "cot.png",
+	  "waitAfterLoadMs": 5000,
+	  "selector": "div#cot-table.tab-group"
+	},
   {
     "name": "CME FedWatch Tool",
     "url": "https://www.cmegroup.com/markets/interest-rates/cme-fedwatch-tool.html",
