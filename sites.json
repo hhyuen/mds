@@ -50,7 +50,7 @@
   },
 	{
 	  "name": "Total Put/Call Ratio",
-	  "url": "https://stockcharts.com/sc3/ui/?s=%24CPC&id=p84662272944",
+	  "url": "https://stockcharts.com/sc3/ui/?s=%24CPC&id=p29027564593",
 	  "file": "cpc.png",
 	  "waitAfterLoadMs": 5000,
 	  "selector": "#chart-image"
