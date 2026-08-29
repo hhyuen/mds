@@ -16,6 +16,8 @@ function sleep(ms) {
 
 async function dismissCommonPopups(page) {
   const selectors = [
+    'button[data-testid="elite-features-dialog-close"]',
+    '[data-testid*="close"]',
     'button:has-text("Accept")',
     'button:has-text("I Accept")',
     'button:has-text("Agree")',
@@ -180,6 +182,8 @@ async function handleFearGreed(page, site, targetFile) {
 }
 
 async function handleDefault(page, site, targetFile) {
+  await dismissCommonPopups(page);
+  await sleep(500);
   if (site.scrollY) {
     await page.mouse.wheel(0, site.scrollY);
     await sleep(1500);
