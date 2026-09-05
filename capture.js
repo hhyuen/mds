@@ -39,6 +39,34 @@ async function dismissCommonPopups(page) {
   }
 }
 
+async function dismissFinvizElitePopup(page) {
+  const closeButton = page.locator(
+    'button[data-testid="elite-features-dialog-close"]'
+  ).first();
+
+  // Check repeatedly because Finviz may inject the popup after page load or scrolling.
+  for (let attempt = 0; attempt < 4; attempt++) {
+    try {
+      if (await closeButton.isVisible({ timeout: 2500 })) {
+        console.log(`Closing Finviz Elite popup (attempt ${attempt + 1})`);
+
+        await closeButton.click({
+          timeout: 3000,
+          force: true
+        });
+
+        // Confirm it has actually disappeared before proceeding.
+        await closeButton.waitFor({
+          state: 'hidden',
+          timeout: 5000
+        }).catch(() => {});
+      }
+    } catch (_) {}
+
+    await sleep(700);
+  }
+}
+
 async function handleCME(page, site, targetFile) {
   await page.evaluate((y) => window.scrollBy(0, y), site.preClickScrollY || 400);
   await sleep(1500);
@@ -183,15 +211,34 @@ async function handleFearGreed(page, site, targetFile) {
 
 async function handleDefault(page, site, targetFile) {
   await dismissCommonPopups(page);
+
+  // Only run the Finviz-specific close routine for Finviz URLs.
+  if (site.url.includes('finviz.com')) {
+    await dismissFinvizElitePopup(page);
+  }
+
   await sleep(500);
+
   if (site.scrollY) {
     await page.mouse.wheel(0, site.scrollY);
     await sleep(1500);
+
+    // The Elite popup may be injected after scrolling.
+    if (site.url.includes('finviz.com')) {
+      await dismissFinvizElitePopup(page);
+    }
   }
 
   if (site.selector) {
     const element = page.locator(site.selector).first();
     await element.waitFor({ state: 'visible', timeout: 15000 });
+
+    // Final popup removal immediately before element capture.
+    if (site.url.includes('finviz.com')) {
+      await dismissFinvizElitePopup(page);
+      await sleep(300);
+    }
+
     await element.screenshot({ path: targetFile });
     console.log(`Saved selector screenshot: ${site.file}`);
     return;
@@ -209,6 +256,11 @@ async function handleDefault(page, site, targetFile) {
     });
     console.log(`Saved cropped screenshot: ${site.file}`);
     return;
+  }
+
+  if (site.url.includes('finviz.com')) {
+    await dismissFinvizElitePopup(page);
+    await sleep(300);
   }
 
   await page.screenshot({
