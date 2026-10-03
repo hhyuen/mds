@@ -2,8 +2,8 @@ name: Scheduled Capture
 
 on:
   schedule:
-    - cron: '13 22 * * 1-5'
-    - cron: '13 22 * * 0'
+    - cron: '13 22 * * 1-4'
+    - cron: '13 9 * * 6'
   workflow_dispatch:
 
 jobs:
